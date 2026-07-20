@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LUMUJO Bedtime Stories</title>
-  <!-- Puter.js Library: Free AI Generation without signups or API keys -->
+  <!-- Puter.js Library for Free AI Story Generation -->
   <script src="https://js.puter.com/v2/"></script>
   <style>
     * {
@@ -154,6 +154,20 @@
             <option value="Playful Puppy">Playful Puppy</option>
             <option value="Magical Robot">Magical Robot</option>
             <option value="Curious Kitten">Curious Kitten</option>
+            <option value="Talking Tree">Talking Tree</option>
+          </select>
+        </div>
+
+        <!-- Special Toy / Item -->
+        <div class="form-group">
+          <label for="favoriteToy">SPECIAL TOY OR MAGICAL ITEM</label>
+          <select id="favoriteToy">
+            <option value="Magic Wand">Magic Wand</option>
+            <option value="Flying Blanket">Flying Blanket</option>
+            <option value="Glowing Star Torch">Glowing Star Torch</option>
+            <option value="Favorite Cuddly Bear">Favorite Cuddly Bear</option>
+            <option value="Wooden Toy Train">Wooden Toy Train</option>
+            <option value="Shiny Pocket Compass">Shiny Pocket Compass</option>
           </select>
         </div>
 
@@ -176,6 +190,8 @@
             <option value="Being Brave">Being Brave</option>
             <option value="Patience">Patience</option>
             <option value="Curiosity">Curiosity</option>
+            <option value="Honesty">Honesty</option>
+            <option value="Perseverance">Perseverance</option>
           </select>
         </div>
 
@@ -199,6 +215,7 @@
 
       const hero = document.getElementById('heroName').value || 'Explorer';
       const sidekick = document.getElementById('sidekick').value;
+      const favoriteToy = document.getElementById('favoriteToy').value;
       const readingLevel = document.getElementById('readingLevel').value;
       const moral = document.getElementById('moralTopic').value;
 
@@ -212,16 +229,17 @@
       const prompt = `Write a soothing, beautifully detailed bedtime story for children that is around 400-500 words long.
 Main Character: ${hero}
 Companion: ${sidekick}
+Special Toy / Item: ${favoriteToy}
 Reading Level: ${readingLevel}
 Lesson/Moral: ${moral}
 
-Make it multi-paragraph, comforting, and focused on the lesson of ${moral}. End with a sleepy, calming conclusion as ${hero} falls asleep safely in bed.`;
+Make it multi-paragraph, comforting, and focused on the lesson of ${moral}. Weave the ${favoriteToy} naturally into their evening adventure. End with a sleepy, calming conclusion as ${hero} falls asleep safely in bed.`;
 
       try {
         const response = await puter.ai.chat(prompt);
         storyBody.innerText = response.toString().trim();
       } catch (err) {
-        storyBody.innerText = `Once upon a time, ${hero} and ${sidekick} went on a beautiful twilight stroll. They spent a peaceful evening learning all about ${moral}. As the soft night wind blew, they tucked themselves into bed feeling safe, warm, and happy. The end.`;
+        storyBody.innerText = `Once upon a time, ${hero} and ${sidekick} went on a peaceful evening walk bringing along their ${favoriteToy}. They spent a quiet night learning all about ${moral}. As the soft night wind blew, they tucked themselves into bed feeling safe, warm, and happy. The end.`;
       } finally {
         generateBtn.disabled = false;
         generateBtn.innerText = '✨ GENERATE MAGIC STORY ✨';
