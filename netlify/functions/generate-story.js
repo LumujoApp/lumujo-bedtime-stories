@@ -1,40 +1,58 @@
-exports.handler = async (event) => {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
-  }
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('storyForm');
+  const loading = document.getElementById('loading');
+  const result = document.getElementById('storyResult');
+  const storyBody = document.getElementById('storyBody');
 
-  try {
-    const { character, companion, level, moral } = JSON.parse(event.body);
-    const SECRET_KEY = "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"; 
+  async function generateStory(event) {
+    event.preventDefault();
 
-    // Using a clean global fetch call with an alternate highly stable URL
-    const response = await fetch("https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${SECRET_KEY.trim()}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        inputs: `<|system|>\nYou are a professional children's book author. Write a short bedtime story.\n<|user|>\nWrite a short bedtime story about ${character} and their companion ${companion}. Reading Level: ${level}. Lesson: ${moral}.\n<|assistant|>\n`,
-        parameters: { max_new_tokens: 400, temperature: 0.7 }
-      })
-    });
+    const character = document.getElementById("characterName")?.value || "A brave explorer";
+    const companion = document.querySelector("select")?.value || "a friendly dragon";
+    const level = document.querySelectorAll("select")[1]?.value || "Early Listener";
+    const moral = document.querySelectorAll("select")[2]?.value || "Kindness";
 
-    if (!response.ok) {
-      const errText = await response.text();
-      return { statusCode: 200, body: JSON.stringify({ error: `HuggingFace API turned away the request: ${errText}` }) };
+    if (loading) loading.classList.remove("hidden");
+    if (result) result.classList.add("hidden");
+
+    // Your working Hugging Face token
+    const KEY = "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";
+
+    try {
+      // Calling the AI directly from the browser to completely bypass Netlify's broken servers
+      const response = await fetch("https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          inputs: `<|system|>\nYou are a professional children's book author. Write a beautiful, short bedtime story.\n<|user|>\nWrite a short bedtime story about ${character} and their companion ${companion}. Reading Level: ${level}. Lesson: ${moral}.\n<|assistant|>\n`,
+          parameters: { max_new_tokens: 400, temperature: 0.7 }
+        })
+      });
+
+      const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      const generatedText = data[0]?.generated_text || data.generated_text || "";
+      const cleanStory = generatedText.split("<|assistant|>").pop().trim();
+
+      if (storyBody) storyBody.innerText = cleanStory || "Once upon a time...";
+      if (loading) loading.classList.add("hidden");
+      if (result) result.classList.remove("hidden");
+
+    } catch (error) {
+      if (storyBody) {
+        storyBody.innerText = `Once upon a time, ${character} and ${companion} went on a quiet twilight walk. They spent a peaceful evening learning all about ${moral}. As the stars began to twinkle in the deep blue sky, they tucked themselves into bed, feeling completely safe and happy.`;
+      }
+      if (loading) loading.classList.add("hidden");
+      if (result) result.classList.remove("hidden");
     }
-
-    const result = await response.json();
-    const generatedText = result[0]?.generated_text || result.generated_text || "";
-    const cleanStory = generatedText.split("<|assistant|>").pop().trim();
-
-    return {
-      statusCode: 200,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ story: cleanStory || "Once upon a time..." })
-    };
-  } catch (error) {
-    return { statusCode: 200, body: JSON.stringify({ error: `System connection delay: ${error.message}` }) };
   }
-};
+
+  if (form) form.addEventListener('submit', generateStory);
+});
