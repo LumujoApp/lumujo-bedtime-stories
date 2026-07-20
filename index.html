@@ -4,7 +4,128 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LUMUJO Bedtime Stories</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at center, #0b132b, #1c2541, #0b0c10);
+      background-size: cover;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: #fff;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 550px;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 20px;
+      padding: 35px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    }
+
+    .app-header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .app-header h1 {
+      font-size: 1.8rem;
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+      color: #4cc9f0;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: #a0aab2;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+      color: #4cc9f0;
+    }
+
+    input[type="text"], select {
+      width: 100%;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    select option {
+      background: #1c2541;
+      color: #fff;
+    }
+
+    .primary-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(45deg, #4895ef, #4361ee);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+      box-shadow: 0 4px 15px rgba(67, 97, 238, 0.4);
+      transition: transform 0.2s, opacity 0.2s;
+    }
+
+    .primary-btn:hover {
+      transform: translateY(-2px);
+      opacity: 0.9;
+    }
+
+    .primary-btn:disabled {
+      background: #555;
+      box-shadow: none;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .story-result-box {
+      margin-top: 25px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
+      padding: 20px;
+      border-left: 3px solid #4cc9f0;
+    }
+
+    .story-text {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #e0e6ed;
+      white-space: pre-line;
+    }
+  </style>
 </head>
 <body>
   <div class="app-container">
@@ -21,7 +142,7 @@
           <input type="text" id="heroName" placeholder="e.g., Leo, Maya, Barnaby..." required>
         </div>
 
-        <!-- Sidekick -->
+        <!-- Sidekick / Companion -->
         <div class="form-group">
           <label for="sidekick">SIDEKICK OR COMPANION</label>
           <select id="sidekick">
@@ -43,7 +164,7 @@
           </select>
         </div>
 
-        <!-- Lesson / Moral -->
+        <!-- Moral Topic -->
         <div class="form-group">
           <label for="moralTopic">MORAL OR LESSON TOPIC</label>
           <select id="moralTopic">
@@ -80,12 +201,11 @@
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const heroName = document.getElementById('heroName')?.value || 'a brave adventurer';
-        const sidekick = document.getElementById('sidekick')?.value || 'a friendly dragon';
+        const heroName = document.getElementById('heroName')?.value || 'Explorer';
+        const sidekick = document.getElementById('sidekick')?.value || 'Friend';
         const readingLevel = document.getElementById('readingLevel')?.value || 'Early Listener';
         const moralTopic = document.getElementById('moralTopic')?.value || 'Kindness';
 
-        // Update UI to show loading state
         generateBtn.disabled = true;
         generateBtn.innerText = 'Generating Story...';
         storyBody.innerText = '✨ Your unique magic story is traveling from the AI star systems now... Please hold on a moment! ✨';
@@ -98,29 +218,21 @@
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-              inputs: `<|system|>\nYou are a warm, professional children's book author. Write a beautiful, calming bedtime story for children.\n<|user|>\nWrite a short bedtime story about ${heroName} and their companion ${sidekick}. Reading Level: ${readingLevel}. Lesson/Moral: ${moralTopic}.\n<|assistant|>\n`,
+              inputs: `<|system|>\nYou are a professional children's book author. Write a beautiful, short bedtime story.\n<|user|>\nWrite a short bedtime story about ${heroName} and their companion ${sidekick}. Reading Level: ${readingLevel}. Lesson: ${moralTopic}.\n<|assistant|>\n`,
               parameters: { max_new_tokens: 400, temperature: 0.7 }
             })
           });
 
           const data = await response.json();
-          let generatedText = '';
-
-          if (Array.isArray(data) && data[0]?.generated_text) {
-            generatedText = data[0].generated_text;
-          } else if (data.generated_text) {
-            generatedText = data.generated_text;
-          }
-
+          const generatedText = data[0]?.generated_text || data.generated_text || "";
           const cleanStory = generatedText.includes('<|assistant|>') 
             ? generatedText.split('<|assistant|>').pop().trim() 
             : generatedText.trim();
 
-          storyBody.innerText = cleanStory || `Once upon a time, ${heroName} and ${sidekick} set out on a magical bedtime adventure...`;
+          storyBody.innerText = cleanStory || `Once upon a time, ${heroName} and ${sidekick} set out on a magical adventure...`;
 
         } catch (error) {
-          // Fallback story if network/API drops
-          storyBody.innerText = `Once upon a time, ${heroName} and ${sidekick} went on a beautiful twilight walk under the starlight. They spent a peaceful evening learning all about the magic of ${moralTopic}. As the soft night wind blew, they tucked themselves into bed, feeling safe, warm, and happy. The end.`;
+          storyBody.innerText = `Once upon a time, ${heroName} and ${sidekick} went on a beautiful twilight walk. They spent a peaceful evening learning all about the magic of ${moralTopic}. As the stars began to twinkle in the deep blue sky, they tucked themselves into bed, feeling safe, warm, and happy. The end.`;
         } finally {
           generateBtn.disabled = false;
           generateBtn.innerText = '✨ GENERATE MAGIC STORY ✨';
