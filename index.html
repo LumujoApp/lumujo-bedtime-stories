@@ -154,7 +154,12 @@
             <option value="Playful Puppy">Playful Puppy</option>
             <option value="Magical Robot">Magical Robot</option>
             <option value="Curious Kitten">Curious Kitten</option>
+            <option value="Gentle Unicorn">Gentle Unicorn</option>
             <option value="Talking Tree">Talking Tree</option>
+            <option value="Tiny Star Sprite">Tiny Star Sprite</option>
+            <option value="Clever Fox">Clever Fox</option>
+            <option value="Brave Little Mouse">Brave Little Mouse</option>
+            <option value="Golden Retriever">Golden Retriever</option>
           </select>
         </div>
 
@@ -168,7 +173,17 @@
             <option value="Favorite Cuddly Bear">Favorite Cuddly Bear</option>
             <option value="Wooden Toy Train">Wooden Toy Train</option>
             <option value="Shiny Pocket Compass">Shiny Pocket Compass</option>
+            <option value="Enchanted Storybook">Enchanted Storybook</option>
+            <option value="Pocket Lantern">Pocket Lantern</option>
+            <option value="Cozy Nightline Pillow">Cozy Nightline Pillow</option>
+            <option value="Silver Whistle">Silver Whistle</option>
           </select>
+        </div>
+
+        <!-- Custom Details (Optional) -->
+        <div class="form-group">
+          <label for="customDetail">ANY EXTRA DETAILS OR SPECIAL REQUESTS (OPTIONAL)</label>
+          <input type="text" id="customDetail" placeholder="e.g., loves space, taking a train, magical forest...">
         </div>
 
         <!-- Reading Level -->
@@ -178,6 +193,7 @@
             <option value="Early Listener (Short & Sweet)">Early Listener (Short & Sweet)</option>
             <option value="Young Reader (Enriching Words)">Young Reader (Enriching Words)</option>
             <option value="Imaginative Learner (Playful Plots)">Imaginative Learner (Playful Plots)</option>
+            <option value="Bedtime Lullaby (Calm & Dreamy)">Bedtime Lullaby (Calm & Dreamy)</option>
           </select>
         </div>
 
@@ -192,6 +208,9 @@
             <option value="Curiosity">Curiosity</option>
             <option value="Honesty">Honesty</option>
             <option value="Perseverance">Perseverance</option>
+            <option value="Gratitude">Gratitude</option>
+            <option value="Listening to Parents">Listening to Parents</option>
+            <option value="Empathy">Empathy</option>
           </select>
         </div>
 
@@ -216,6 +235,7 @@
       const hero = document.getElementById('heroName').value || 'Explorer';
       const sidekick = document.getElementById('sidekick').value;
       const favoriteToy = document.getElementById('favoriteToy').value;
+      const customDetail = document.getElementById('customDetail').value;
       const readingLevel = document.getElementById('readingLevel').value;
       const moral = document.getElementById('moralTopic').value;
 
@@ -226,14 +246,18 @@
       generateBtn.innerText = 'Writing Story...';
       storyBody.innerText = '✨ Calling AI star systems to write your bedtime story... Please wait! ✨';
 
-      const prompt = `Write a soothing, beautifully detailed bedtime story for children that is around 400-500 words long.
+      let prompt = `Write a soothing, beautifully detailed bedtime story for children that is around 400-500 words long.
 Main Character: ${hero}
 Companion: ${sidekick}
 Special Toy / Item: ${favoriteToy}
 Reading Level: ${readingLevel}
-Lesson/Moral: ${moral}
+Lesson/Moral: ${moral}`;
 
-Make it multi-paragraph, comforting, and focused on the lesson of ${moral}. Weave the ${favoriteToy} naturally into their evening adventure. End with a sleepy, calming conclusion as ${hero} falls asleep safely in bed.`;
+      if (customDetail.trim() !== "") {
+        prompt += `\nAdditional Special Detail: ${customDetail}`;
+      }
+
+      prompt += `\n\nMake it multi-paragraph, comforting, and focused on the lesson of ${moral}. Weave the ${favoriteToy} naturally into their evening adventure. End with a sleepy, calming conclusion as ${hero} falls asleep safely in bed.`;
 
       try {
         const response = await puter.ai.chat(prompt);
