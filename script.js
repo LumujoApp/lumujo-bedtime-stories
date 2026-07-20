@@ -2,18 +2,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('storyForm');
   const loading = document.getElementById('loading');
   const result = document.getElementById('storyResult');
-  const paymentGate = document.getElementById('paymentGate');
   const submitBtn = document.getElementById('submitBtn');
 
-  // Track state conditions dynamically
-  let storyCount = 0;
-  let maxStoriesAllowed = 1; // Default free limit
-
-  // --- Safety Filter Rule List ---
   const blockedKeywords = [
     "fuck", "shit", "bitch", "asshole", "dick", "pussy", "sexy", "naked", "porn",
-    "kill", "murder", "blood", "stab", "shoot", "death", "die", "punch", "fight", "war", "execute",
-    "monster", "demon", "ghost", "corpse", "hell", "satan", "terror", "creepy", "scary"
+    "kill", "murder", "blood", "stab", "shoot", "death", "die", "punch", "fight", "war", "execute"
   ];
 
   function containsInappropriateContent(text) {
@@ -25,26 +18,21 @@ document.addEventListener('DOMContentLoaded', () => {
   async function generateStory(event) {
     event.preventDefault();
 
-    // 1. Grab input values
     const character = document.getElementById("characterName")?.value || "";
     const companion = document.querySelector("select")?.value || "a friend";
     const level = document.querySelectorAll("select")[1]?.value || "bedtime reading";
     const moral = document.querySelectorAll("select")[2]?.value || "kindness";
-
     const storyBody = document.getElementById("storyBody");
 
-    // 2. Run the Safety Check on user-typed text
     if (containsInappropriateContent(character)) {
-      alert("Please keep the character name friendly and appropriate for a bedtime story!");
+      alert("Please keep the character name friendly!");
       return;
     }
 
-    // 3. Show loading screen, hide old results
     if (loading) loading.classList.remove("hidden");
     if (result) result.classList.add("hidden");
 
     try {
-      // 4. Send directly to your secure Netlify serverless function
       const response = await fetch("/.netlify/functions/generate-story", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -53,14 +41,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const data = await response.json();
       
-      // 5. Display the deep, human-sounding AI story
-      if (storyBody) {
+      // Safety check: if backend sent an error or missing story, show a fallback
+      if (data && data.story) {
         storyBody.innerText = data.story;
+      } else if (data && data.error) {
+        storyBody.innerText = `Backend Config Error: ${data.error}. (Did you add your AI_API_KEY to Netlify environment variables yet?)`;
+      } else {
+        storyBody.innerText = "The AI endpoint is setting up. Make sure your Netlify environment key is active!";
       }
+      
       if (result) result.classList.remove("hidden");
     } catch (error) {
       if (storyBody) {
-        storyBody.innerText = "The stars are a bit tangled right now. Please try again in a moment!";
+        storyBody.innerText = "Could not reach the serverless backend. Check your Netlify deployment log.";
       }
       if (result) result.classList.remove("hidden");
     } finally {
@@ -68,8 +61,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Attach execution handler to form submit
-  if (form) {
-    form.addEventListener('submit', generateStory);
-  }
+  if (form) form.addEventListener('submit', generateStory);
 });
