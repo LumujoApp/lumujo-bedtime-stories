@@ -30,7 +30,7 @@
   <!-- Main Content Area -->
   <main class="max-w-4xl mx-auto p-6 w-full flex-grow">
 
-    <!-- Generator Section (Visible when user has credits or unlimited access) -->
+    <!-- Generator Section -->
     <section id="generator-section" class="hidden mb-12 bg-slate-800/50 p-6 sm:p-8 rounded-2xl border border-slate-700">
       <div class="text-center mb-6">
         <h2 class="text-2xl font-bold">Create Your Story</h2>
@@ -47,7 +47,7 @@
         <!-- Sidekick or Companion -->
         <div>
           <label class="block text-sm font-medium mb-1 text-slate-300">Sidekick or Companion</label>
-          <select id="sidekick" class="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-indigo-500">
+          <select id="sidekick" onchange="toggleOther('sidekick', 'sidekick-other-container')" class="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-indigo-500">
             <option value="Friendly Dragon">Friendly Dragon</option>
             <option value="Teddy Bear">Teddy Bear</option>
             <option value="Wise Owl">Wise Owl</option>
@@ -55,36 +55,48 @@
             <option value="Magical Robot">Magical Robot</option>
             <option value="Curious Kitten">Curious Kitten</option>
             <option value="Talking Tree">Talking Tree</option>
+            <option value="Other">Other...</option>
           </select>
+          <div id="sidekick-other-container" class="hidden mt-2">
+            <input type="text" id="sidekick-other" placeholder="Specify other sidekick..." class="w-full p-2.5 rounded-lg bg-slate-900 border border-indigo-500 text-white focus:outline-none">
+          </div>
         </div>
 
         <!-- Special Toy or Magical Item -->
         <div>
           <label class="block text-sm font-medium mb-1 text-slate-300">Special Toy or Magical Item</label>
-          <select id="magical-item" class="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-indigo-500">
+          <select id="magical-item" onchange="toggleOther('magical-item', 'item-other-container')" class="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-indigo-500">
             <option value="Magic Wand">Magic Wand</option>
             <option value="Flying Blanket">Flying Blanket</option>
             <option value="Glowing Star Torch">Glowing Star Torch</option>
             <option value="Favorite Cuddly Bear">Favorite Cuddly Bear</option>
             <option value="Wooden Toy Train">Wooden Toy Train</option>
             <option value="Shiny Pocket Compass">Shiny Pocket Compass</option>
+            <option value="Other">Other...</option>
           </select>
+          <div id="item-other-container" class="hidden mt-2">
+            <input type="text" id="item-other" placeholder="Specify other special item..." class="w-full p-2.5 rounded-lg bg-slate-900 border border-indigo-500 text-white focus:outline-none">
+          </div>
         </div>
 
-        <!-- Story Complexity / Reading Level -->
+        <!-- Story Complexity / Reading Level matched to Age Groups -->
         <div>
-          <label class="block text-sm font-medium mb-1 text-slate-300">Story Complexity / Reading Level</label>
-          <select id="reading-level" class="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-indigo-500">
-            <option value="Early Listener (Short & Sweet)">Early Listener (Short & Sweet)</option>
-            <option value="Young Reader (Enriching Words)">Young Reader (Enriching Words)</option>
-            <option value="Imaginative Learner (Playful Plots)">Imaginative Learner (Playful Plots)</option>
+          <label class="block text-sm font-medium mb-1 text-slate-300">Age Group & Story Length</label>
+          <select id="reading-level" onchange="toggleOther('reading-level', 'level-other-container')" class="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-indigo-500">
+            <option value="Toddler (Ages 2-4): Short & Sweet (3-5 mins)">Toddler (Ages 2-4): Short & Sweet (3-5 mins)</option>
+            <option value="Early Reader (Ages 5-8): Richer Vocabulary & Fun Twist (5-8 mins)">Early Reader (Ages 5-8): Richer Vocabulary & Fun Twist (5-8 mins)</option>
+            <option value="Older Reader (Ages 9+): Detailed Plot & Deeper Themes (8-12 mins)">Older Reader (Ages 9+): Detailed Plot & Deeper Themes (8-12 mins)</option>
+            <option value="Other">Other...</option>
           </select>
+          <div id="level-other-container" class="hidden mt-2">
+            <input type="text" id="level-other" placeholder="Specify age range or story length..." class="w-full p-2.5 rounded-lg bg-slate-900 border border-indigo-500 text-white focus:outline-none">
+          </div>
         </div>
 
         <!-- Moral or Lesson Topic -->
         <div>
           <label class="block text-sm font-medium mb-1 text-slate-300">Moral or Lesson Topic</label>
-          <select id="moral-lesson" class="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-indigo-500">
+          <select id="moral-lesson" onchange="toggleOther('moral-lesson', 'moral-other-container')" class="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-indigo-500">
             <option value="Kindness">Kindness</option>
             <option value="Sharing">Sharing</option>
             <option value="Being Brave">Being Brave</option>
@@ -92,7 +104,11 @@
             <option value="Curiosity">Curiosity</option>
             <option value="Honesty">Honesty</option>
             <option value="Perseverance">Perseverance</option>
+            <option value="Other">Other...</option>
           </select>
+          <div id="moral-other-container" class="hidden mt-2">
+            <input type="text" id="moral-other" placeholder="Specify other moral lesson..." class="w-full p-2.5 rounded-lg bg-slate-900 border border-indigo-500 text-white focus:outline-none">
+          </div>
         </div>
 
         <button type="submit" class="w-full py-3 mt-2 bg-indigo-600 hover:bg-indigo-500 font-semibold rounded-lg transition-colors">
@@ -146,6 +162,17 @@
   </footer>
 
   <script>
+    // Toggle 'Other' input text box visibility
+    function toggleOther(selectId, containerId) {
+      const select = document.getElementById(selectId);
+      const container = document.getElementById(containerId);
+      if (select.value === 'Other') {
+        container.classList.remove('hidden');
+      } else {
+        container.classList.add('hidden');
+      }
+    }
+
     // Storage helpers
     function getCredits() {
       return localStorage.getItem('lumujo_credits') || '0';
@@ -192,22 +219,31 @@
           setCredits(current + 10);
           alert('🎉 Payment successful! 10 credits have been added to your account.');
         }
-        // Clean up URL parameter so refreshing doesn't re-trigger the alert
         window.history.replaceState({}, document.title, window.location.pathname);
       }
 
       updateUI();
     });
 
+    // Helper to grab selected value or custom 'Other' text
+    function getChoiceValue(selectId, otherInputId) {
+      const selectVal = document.getElementById(selectId).value;
+      if (selectVal === 'Other') {
+        const customText = document.getElementById(otherInputId).value.trim();
+        return customText !== '' ? customText : 'special idea';
+      }
+      return selectVal;
+    }
+
     // Story Generator Form Handler
     document.getElementById('story-form').addEventListener('submit', (e) => {
       e.preventDefault();
       
       const hero = document.getElementById('hero-name').value;
-      const sidekick = document.getElementById('sidekick').value;
-      const item = document.getElementById('magical-item').value;
-      const level = document.getElementById('reading-level').value;
-      const moral = document.getElementById('moral-lesson').value;
+      const sidekick = getChoiceValue('sidekick', 'sidekick-other');
+      const item = getChoiceValue('magical-item', 'item-other');
+      const level = getChoiceValue('reading-level', 'level-other');
+      const moral = getChoiceValue('moral-lesson', 'moral-other');
 
       const credits = getCredits();
 
@@ -223,7 +259,7 @@
 
       const output = document.getElementById('story-output');
       output.classList.remove('hidden');
-      output.textContent = `Once upon a time, there lived a brave hero named ${hero}. \n\nAlong with a loyal companion, a ${sidekick}, and holding their special ${item}, they set off on a gentle evening adventure.\n\nAlong the journey, ${hero} discovered an important secret about the value of ${moral}.\n\nAs the stars twinkled overhead, ${hero} wrapped up in a warm blanket, feeling peaceful and proud. The End.`;
+      output.textContent = `[Level: ${level}]\n\nOnce upon a time, there lived a brave hero named ${hero}.\n\nAccompanied by a trusty ${sidekick} and equipped with their trusty ${item}, they set off on a calm bedtime adventure.\n\nThrough their travels, ${hero} learned a wonderful lesson about ${moral}.\n\nWith soft stars lighting the night, ${hero} closed their eyes for a quiet and peaceful sleep. The End.`;
     });
   </script>
 </body>
