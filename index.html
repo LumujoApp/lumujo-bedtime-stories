@@ -3,229 +3,169 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LUMUJO - Bedtime Stories</title>
+  <title>LUMUJO Stories - Magical Bedtime Stories</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    :root {
-      --primary: #4F46E5;
-      --primary-hover: #4338CA;
-      --bg: #0F172A;
-      --card-bg: #1E293B;
-      --text: #F8FAFC;
-      --text-muted: #94A3B8;
-      --accent: #F59E0B;
-    }
-
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      margin: 0;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-    }
-
-    header {
-      width: 100%;
-      max-width: 800px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 0;
-      border-bottom: 1px solid #334155;
-    }
-
-    .logo {
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: #FFF;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .badge {
-      background-color: var(--card-bg);
-      border: 1px solid #334155;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 0.9rem;
-      color: var(--accent);
-      font-weight: 600;
-    }
-
-    main {
-      width: 100%;
-      max-width: 800px;
-      margin-top: 40px;
-      text-align: center;
-    }
-
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 10px;
-    }
-
-    p.subtitle {
-      color: var(--text-muted);
-      font-size: 1.1rem;
-      margin-bottom: 40px;
-    }
-
-    .pricing-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-      margin-top: 20px;
-    }
-
-    .card {
-      background-color: var(--card-bg);
-      border: 1px solid #334155;
-      border-radius: 12px;
-      padding: 30px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      transition: transform 0.2s, border-color 0.2s;
-    }
-
-    .card:hover {
-      transform: translateY(-4px);
-      border-color: var(--primary);
-    }
-
-    .card.popular {
-      border: 2px solid var(--primary);
-      position: relative;
-    }
-
-    .card.popular::before {
-      content: "MOST POPULAR";
-      position: absolute;
-      top: -12px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: var(--primary);
-      color: white;
-      font-size: 0.75rem;
-      font-weight: bold;
-      padding: 4px 12px;
-      border-radius: 12px;
-    }
-
-    .price {
-      font-size: 2rem;
-      font-weight: bold;
-      margin: 15px 0;
-    }
-
-    .price span {
-      font-size: 1rem;
-      color: var(--text-muted);
-    }
-
-    .btn {
-      background-color: var(--primary);
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 1rem;
-      cursor: pointer;
-      width: 100%;
-      transition: background-color 0.2s;
-    }
-
-    .btn:hover {
-      background-color: var(--primary-hover);
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
   </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col justify-between">
 
-  <header>
-    <div class="logo">✨ LUMUJO Stories</div>
-    <div class="badge" id="accountBadge">Loading status...</div>
-  </header>
-
-  <main>
-    <h1>Magical Bedtime Stories</h1>
-    <p class="subtitle">Choose a plan to generate unlimited custom bedtime stories for your child.</p>
-
-    <div class="pricing-grid">
-      <!-- 10 Story Pack -->
-      <div class="card">
-        <div>
-          <h3>10 Story Pack</h3>
-          <p style="color: var(--text-muted);">One-time purchase for 10 custom bedtime stories.</p>
-          <div class="price">$5.99 <span>CAD</span></div>
-        </div>
-        <button class="btn" onclick="redirectToStripe('pack')">Buy 10 Credits</button>
-      </div>
-
-      <!-- Monthly Unlimited -->
-      <div class="card popular">
-        <div>
-          <h3>Monthly Unlimited</h3>
-          <p style="color: var(--text-muted);">Unlock unlimited bedtime story generation every month.</p>
-          <div class="price">$7.99 <span>CAD / mo</span></div>
-        </div>
-        <button class="btn" onclick="redirectToStripe('unlimited')">Subscribe Now</button>
+  <!-- Navigation / Header -->
+  <header class="border-b border-slate-800 p-4">
+    <div class="max-w-4xl mx-auto flex justify-between items-center">
+      <h1 class="text-xl font-bold flex items-center gap-2">
+        <span>✨</span> LUMUJO Stories
+      </h1>
+      <div id="credit-badge" class="px-3 py-1 rounded-full text-sm font-semibold bg-slate-800 text-amber-400 border border-slate-700">
+        0 Credits
       </div>
     </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="max-w-4xl mx-auto p-6 w-full flex-grow">
+
+    <!-- Generator Section (Visible when user has credits/unlimited) -->
+    <section id="generator-section" class="hidden mb-12 bg-slate-800/50 p-6 rounded-2xl border border-slate-700">
+      <h2 class="text-2xl font-bold mb-4 text-center">Create a Story</h2>
+      <form id="story-form" class="space-y-4 max-w-md mx-auto">
+        <div>
+          <label class="block text-sm font-medium mb-1 text-slate-300">Child's Name</label>
+          <input type="text" id="child-name" required placeholder="e.g. Leo" class="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1 text-slate-300">Story Theme or Topic</label>
+          <input type="text" id="story-theme" required placeholder="e.g. Friendly dragon in space" class="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 font-semibold rounded-lg transition-colors">
+          ✨ Generate Bedtime Story
+        </button>
+      </form>
+
+      <!-- Story Output -->
+      <div id="story-output" class="hidden mt-6 p-6 bg-slate-900 rounded-xl border border-slate-800 whitespace-pre-wrap leading-relaxed text-slate-200"></div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing-section" class="text-center">
+      <h2 class="text-3xl font-extrabold mb-2">Magical Bedtime Stories</h2>
+      <p class="text-slate-400 mb-8">Choose a plan to generate custom bedtime stories for your child.</p>
+
+      <div class="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+        <!-- 10 Story Pack -->
+        <div class="bg-slate-800/40 p-6 rounded-2xl border border-slate-700 flex flex-col justify-between">
+          <div>
+            <h3 class="text-lg font-bold mb-2">10 Story Pack</h3>
+            <p class="text-sm text-slate-400 mb-4">One-time purchase for 10 custom bedtime stories.</p>
+            <div class="text-3xl font-black mb-6">$5.99 <span class="text-sm font-normal text-slate-400">CAD</span></div>
+          </div>
+          <a href="https://buy.stripe.com/evqfZi5xj1dBenu87TbZe00" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 font-semibold rounded-xl transition-colors block">
+            Buy 10 Credits
+          </a>
+        </div>
+
+        <!-- Monthly Unlimited -->
+        <div class="bg-slate-800/80 p-6 rounded-2xl border-2 border-indigo-500 relative flex flex-col justify-between">
+          <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-500 text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full text-white">
+            Most Popular
+          </span>
+          <div>
+            <h3 class="text-lg font-bold mb-2">Monthly Unlimited</h3>
+            <p class="text-sm text-slate-400 mb-4">Unlock unlimited bedtime story generation every month.</p>
+            <div class="text-3xl font-black mb-6">$7.99 <span class="text-sm font-normal text-slate-400">CAD / mo</span></div>
+          </div>
+          <a href="https://buy.stripe.com/9B6dRa5xj2hF1AIco9bZe03" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 font-semibold rounded-xl transition-colors block">
+            Subscribe Now
+          </a>
+        </div>
+      </div>
+    </section>
+
   </main>
 
+  <footer class="text-center p-4 text-xs text-slate-500 border-t border-slate-800">
+    &copy; LUMUJO Stories. All rights reserved.
+  </footer>
+
   <script>
-    // Stripe Payment Links
-    const STRIPE_LINK_PACK = "https://buy.stripe.com/eVqfZi5xj1dBenu87TbZe00";
-    const STRIPE_LINK_UNLIMITED = "https://buy.stripe.com/9B6dRa5xj2hF1AIco9bZe03";
-
-    // Direct users to Stripe Checkout
-    function redirectToStripe(planType) {
-      if (planType === 'pack') {
-        window.location.href = STRIPE_LINK_PACK;
-      } else if (planType === 'unlimited') {
-        window.location.href = STRIPE_LINK_UNLIMITED;
-      }
+    // Storage helpers
+    function getCredits() {
+      return localStorage.getItem('lumujo_credits') || '0';
+    }
+    
+    function setCredits(val) {
+      localStorage.setItem('lumujo_credits', val);
     }
 
-    // Update the header status badge based on user purchase
-    function updateBadge() {
-      const badge = document.getElementById('accountBadge');
-      const isUnlimited = localStorage.getItem('lumujo_unlimited') === 'true';
-      const credits = parseInt(localStorage.getItem('lumujo_credits') || '0', 10);
+    // Update UI Elements based on state
+    function updateUI() {
+      const badge = document.getElementById('credit-badge');
+      const generatorSection = document.getElementById('generator-section');
+      const credits = getCredits();
 
-      if (isUnlimited) {
+      if (credits === 'unlimited') {
         badge.textContent = '🌟 Unlimited Access';
-      } else if (credits > 0) {
-        badge.textContent = `✨ ${credits} Story Credits Left`;
+        badge.className = 'px-3 py-1 rounded-full text-sm font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30';
+        generatorSection.classList.remove('hidden');
       } else {
-        badge.textContent = '0 Credits';
+        const count = parseInt(credits, 10) || 0;
+        badge.textContent = count + ' Credits';
+        badge.className = 'px-3 py-1 rounded-full text-sm font-semibold bg-slate-800 text-amber-400 border border-slate-700';
+        
+        if (count > 0) {
+          generatorSection.classList.remove('hidden');
+        } else {
+          generatorSection.classList.add('hidden');
+        }
       }
     }
 
-    // Handle returning customers after Stripe payment completion
+    // Handle Payment Success Parameters
     window.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
-      const paymentStatus = urlParams.get('payment');
+      const payment = urlParams.get('payment');
 
-      if (paymentStatus === 'success_unlimited') {
-        localStorage.setItem('lumujo_unlimited', 'true');
-        alert('✨ Welcome to LUMUJO Monthly Unlimited! You now have unlimited bedtime stories.');
-        window.history.replaceState({}, document.title, window.location.pathname);
-      } else if (paymentStatus === 'success_pack') {
-        let currentCredits = parseInt(localStorage.getItem('lumujo_credits') || '0', 10);
-        currentCredits += 10;
-        localStorage.setItem('lumujo_credits', currentCredits.toString());
-        alert('✨ 10 Story Credits have been added to your account!');
+      if (payment === 'success_pack' || payment === 'success_unlimited') {
+        if (payment === 'success_unlimited') {
+          setCredits('unlimited');
+          alert('✨ Welcome to LUMUJO Monthly Unlimited! You now have unlimited bedtime stories.');
+        } else {
+          const current = parseInt(getCredits(), 10) || 0;
+          setCredits(current + 10);
+          alert('🎉 Payment successful! 10 credits have been added to your account.');
+        }
+        // Clean up URL so refresh doesn't trigger the alert again
         window.history.replaceState({}, document.title, window.location.pathname);
       }
 
-      updateBadge();
+      updateUI();
+    });
+
+    // Story Generator Demo Handler
+    document.getElementById('story-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('child-name').value;
+      const theme = document.getElementById('story-theme').value;
+      const credits = getCredits();
+
+      if (credits !== 'unlimited') {
+        let count = parseInt(credits, 10) || 0;
+        if (count <= 0) {
+          alert('You need credits to generate a story. Please purchase a pack below.');
+          return;
+        }
+        setCredits(count - 1);
+        updateUI();
+      }
+
+      const output = document.getElementById('story-output');
+      output.classList.remove('hidden');
+      output.textContent = `Once upon a time, there was a brave child named ${name} who went on a magical adventure exploring ${theme}.\n\nAs night fell, ${name} drifted peacefully to sleep, dreaming of grand adventures under the starry night sky. The End.`;
     });
   </script>
 </body>
