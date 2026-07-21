@@ -96,7 +96,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (result) result.classList.add("hidden");
 
     try {
-      const response = await fetch("/.netlify/functions/generate-story", {
+      // Connects directly to your Netlify serverless function
+      const response = await fetch("https://lumujo-bedtime-stories.netlify.app/.netlify/functions/generate-story", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ character, companion, level, moral })
@@ -127,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (result) result.classList.remove("hidden");
     } catch (error) {
       if (storyBody) {
-        storyBody.innerText = "Could not reach the serverless backend. Check your Netlify deployment log.";
+        storyBody.innerText = "Could not reach the serverless backend. Check your Netlify deployment log or CORS settings.";
       }
       if (result) result.classList.remove("hidden");
     } finally {
