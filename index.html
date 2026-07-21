@@ -38,6 +38,7 @@
       </div>
 
       <form id="story-form" class="space-y-4 max-w-lg mx-auto">
+        
         <!-- Main Character / Hero Name -->
         <div>
           <label class="block text-sm font-medium mb-1 text-slate-300">Main Character / Hero Name</label>
@@ -58,7 +59,7 @@
             <option value="Other">Other...</option>
           </select>
           <div id="sidekick-other-container" class="hidden mt-2">
-            <input type="text" id="sidekick-other" placeholder="Specify other sidekick..." class="w-full p-2.5 rounded-lg bg-slate-900 border border-indigo-500 text-white focus:outline-none">
+            <input type="text" id="sidekick-other" placeholder="Type your custom sidekick..." class="w-full p-2.5 rounded-lg bg-slate-900 border border-indigo-500 text-white focus:outline-none">
           </div>
         </div>
 
@@ -75,21 +76,21 @@
             <option value="Other">Other...</option>
           </select>
           <div id="item-other-container" class="hidden mt-2">
-            <input type="text" id="item-other" placeholder="Specify other special item..." class="w-full p-2.5 rounded-lg bg-slate-900 border border-indigo-500 text-white focus:outline-none">
+            <input type="text" id="item-other" placeholder="Type your custom magical item..." class="w-full p-2.5 rounded-lg bg-slate-900 border border-indigo-500 text-white focus:outline-none">
           </div>
         </div>
 
-        <!-- Story Complexity / Reading Level matched to Age Groups -->
+        <!-- Story Complexity / Reading Level -->
         <div>
-          <label class="block text-sm font-medium mb-1 text-slate-300">Age Group & Story Length</label>
+          <label class="block text-sm font-medium mb-1 text-slate-300">Age Group & Story Complexity</label>
           <select id="reading-level" onchange="toggleOther('reading-level', 'level-other-container')" class="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-indigo-500">
-            <option value="Toddler (Ages 2-4): Short & Sweet (3-5 mins)">Toddler (Ages 2-4): Short & Sweet (3-5 mins)</option>
-            <option value="Early Reader (Ages 5-8): Richer Vocabulary & Fun Twist (5-8 mins)">Early Reader (Ages 5-8): Richer Vocabulary & Fun Twist (5-8 mins)</option>
-            <option value="Older Reader (Ages 9+): Detailed Plot & Deeper Themes (8-12 mins)">Older Reader (Ages 9+): Detailed Plot & Deeper Themes (8-12 mins)</option>
+            <option value="toddler">Toddler (Ages 2-4): Short & Sweet (3-5 mins)</option>
+            <option value="young">Young Reader (Ages 5-8): Enriching Words & Fun Twist (5-8 mins)</option>
+            <option value="older">Older Reader (Ages 9+): Imaginative Plot & Deeper Themes (8-12 mins)</option>
             <option value="Other">Other...</option>
           </select>
           <div id="level-other-container" class="hidden mt-2">
-            <input type="text" id="level-other" placeholder="Specify age range or story length..." class="w-full p-2.5 rounded-lg bg-slate-900 border border-indigo-500 text-white focus:outline-none">
+            <input type="text" id="level-other" placeholder="Specify age or reading style..." class="w-full p-2.5 rounded-lg bg-slate-900 border border-indigo-500 text-white focus:outline-none">
           </div>
         </div>
 
@@ -107,7 +108,7 @@
             <option value="Other">Other...</option>
           </select>
           <div id="moral-other-container" class="hidden mt-2">
-            <input type="text" id="moral-other" placeholder="Specify other moral lesson..." class="w-full p-2.5 rounded-lg bg-slate-900 border border-indigo-500 text-white focus:outline-none">
+            <input type="text" id="moral-other" placeholder="Type your custom lesson..." class="w-full p-2.5 rounded-lg bg-slate-900 border border-indigo-500 text-white focus:outline-none">
           </div>
         </div>
 
@@ -117,7 +118,7 @@
       </form>
 
       <!-- Story Output -->
-      <div id="story-output" class="hidden mt-6 p-6 bg-slate-900 rounded-xl border border-slate-800 whitespace-pre-wrap leading-relaxed text-slate-200"></div>
+      <div id="story-output" class="hidden mt-6 p-6 bg-slate-900 rounded-xl border border-slate-800 leading-relaxed text-slate-200"></div>
     </section>
 
     <!-- Pricing Section -->
@@ -162,7 +163,7 @@
   </footer>
 
   <script>
-    // Toggle 'Other' input text box visibility
+    // Toggle 'Other' input visibility
     function toggleOther(selectId, containerId) {
       const select = document.getElementById(selectId);
       const container = document.getElementById(containerId);
@@ -182,7 +183,7 @@
       localStorage.setItem('lumujo_credits', val);
     }
 
-    // Update UI Elements based on saved state
+    // Update UI Elements
     function updateUI() {
       const badge = document.getElementById('credit-badge');
       const generatorSection = document.getElementById('generator-section');
@@ -205,7 +206,7 @@
       }
     }
 
-    // Handle Payment Success Parameters from Stripe Redirect
+    // Handle Payment Success
     window.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
       const payment = urlParams.get('payment');
@@ -225,24 +226,77 @@
       updateUI();
     });
 
-    // Helper to grab selected value or custom 'Other' text
+    // Helper to fetch choice or custom text
     function getChoiceValue(selectId, otherInputId) {
       const selectVal = document.getElementById(selectId).value;
       if (selectVal === 'Other') {
         const customText = document.getElementById(otherInputId).value.trim();
-        return customText !== '' ? customText : 'special idea';
+        return customText !== '' ? customText : 'friend';
       }
       return selectVal;
     }
 
-    // Story Generator Form Handler
+    // Dynamic Story Generator Engine
+    function generateStoryText(hero, sidekick, item, levelKey, moral) {
+      const settings = [
+        "the Whispering Woods, where the leaves softly hummed lullabies in the evening breeze",
+        "the Starlight Meadow, glowing with gentle fireflies that danced like tiny lanterns",
+        "the Cloudtop Valley, where the pillows of mist floated soft and warm above the quiet hills",
+        "the Moonlit Cove, where the waves gently tapped the shore in a relaxing rhythm"
+      ];
+      const setting = settings[Math.floor(Math.random() * settings.length)];
+
+      if (levelKey === 'toddler') {
+        return `
+<h3 class="text-xl font-bold text-amber-300 mb-3">${hero} and the Gentle Evening</h3>
+<p class="mb-3">Deep in ${setting}, lived sweet little ${hero}. Nighttime was coming, and the sky turned a soft violet purple.</p>
+<p class="mb-3">${hero} held tightly to their favorite ${item}. Standing beside them was a kind ${sidekick}, ready to help make the evening safe and cozy.</p>
+<p class="mb-3">Suddenly, a little star lost its glow! ${hero} used their ${item} to shine a warm, comforting light. Together with the ${sidekick}, they helped the star find its place in the sky.</p>
+<p class="mb-3">${hero} smiled softly, learning that showing ${moral} makes every heart feel cozy and loved.</p>
+<p class="italic text-slate-400">Soft yawns filled the room. ${hero} closed their eyes, snuggled into bed, and drifted into sweet, happy dreams. Goodnight, ${hero}.</p>
+        `.trim();
+      } 
+      
+      else if (levelKey === 'older') {
+        return `
+<h3 class="text-xl font-bold text-amber-300 mb-3">${hero} and the Secret of ${setting.split(',')[0]}</h3>
+<p class="mb-3">The sun dipped low beneath the horizon, casting deep golden shadows across ${setting}. For ${hero}, the night was not merely a time for rest, but an opportunity to discover mysteries hidden within the peaceful dark.</p>
+
+<p class="mb-3">Accompanying ${hero} on this quest was their trusted companion, a loyal ${sidekick}. Tucked safely in hand was a mysterious artifact—a ${item} that emitted a faint, pulsing radiance whenever true intention was spoken.</p>
+
+<p class="mb-3">As they ventured deeper along the mossy path, an unexpected challenge blocked their way. A high stone gate, covered in ancient glowing symbols, remained firmly locked. "We cannot pass with force," murmured the ${sidekick}. "The lock responds only to what lies within the heart."</p>
+
+<p class="mb-3">${hero} paused, reflecting on the value of <strong>${moral}</strong>. Realizing that true strength comes from understanding and integrity, ${hero} held up the ${item}. The glowing artifact flared with bright, warm light, causing the ancient gate to quietly swing open, revealing a tranquil garden beneath the moonlight.</p>
+
+<p class="mb-3">With their heart at ease and the journey fulfilled, ${hero} returned home to a soft, inviting bed. Surrounded by calm night air, ${hero} closed their eyes, peacefully drifting off to rest.</p>
+        `.trim();
+      } 
+      
+      else {
+        // Default / Young Reader (Ages 5-8)
+        return `
+<h3 class="text-xl font-bold text-amber-300 mb-3">${hero}'s Great Bedtime Adventure</h3>
+<p class="mb-3">Once upon a time, as twilight settled softly over ${setting}, young ${hero} was preparing for bed. But tonight held a special bit of magic.</p>
+
+<p class="mb-3">Along with a quick-thinking companion—a playful ${sidekick}—${hero} discovered something extraordinary lying on the table: a magical ${item}.</p>
+
+<p class="mb-3">"Look!" gasped the ${sidekick}. "The ${item} is glowing!" Sure enough, a gentle trail of stardust pointed toward the old garden tree. Following the trail, they met a tiny moon-sprite who was too worried about the dark to fall asleep.</p>
+
+<p class="mb-3">${hero} knew exactly what to do. Demonstrating true <strong>${moral}</strong>, ${hero} shared the warm light from their ${item} and offered encouraging words. The little sprite smiled, relaxed, and curled up happily under a velvet leaf.</p>
+
+<p class="mb-3">Having brightened someone else's night, ${hero} felt a warm feeling inside. The ${sidekick} gave a gentle yawn, signaling it was time to rest. ${hero} climbed under the warm covers, took a deep breath, and floated off into wonderful, magical dreams. The End.</p>
+        `.trim();
+      }
+    }
+
+    // Story Form Submit Event
     document.getElementById('story-form').addEventListener('submit', (e) => {
       e.preventDefault();
       
       const hero = document.getElementById('hero-name').value;
       const sidekick = getChoiceValue('sidekick', 'sidekick-other');
       const item = getChoiceValue('magical-item', 'item-other');
-      const level = getChoiceValue('reading-level', 'level-other');
+      const levelKey = document.getElementById('reading-level').value;
       const moral = getChoiceValue('moral-lesson', 'moral-other');
 
       const credits = getCredits();
@@ -259,7 +313,7 @@
 
       const output = document.getElementById('story-output');
       output.classList.remove('hidden');
-      output.textContent = `[Level: ${level}]\n\nOnce upon a time, there lived a brave hero named ${hero}.\n\nAccompanied by a trusty ${sidekick} and equipped with their trusty ${item}, they set off on a calm bedtime adventure.\n\nThrough their travels, ${hero} learned a wonderful lesson about ${moral}.\n\nWith soft stars lighting the night, ${hero} closed their eyes for a quiet and peaceful sleep. The End.`;
+      output.innerHTML = generateStoryText(hero, sidekick, item, levelKey, moral);
     });
   </script>
 </body>
