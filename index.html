@@ -257,14 +257,16 @@
           <input type="text" id="favoriteToyOther" class="custom-input" placeholder="Type custom toy or item...">
         </div>
 
-        <!-- Reading Level -->
+        <!-- Reading Level / Complexity -->
         <div class="form-group">
           <label for="readingLevel">STORY COMPLEXITY / READING LEVEL</label>
-          <select id="readingLevel">
-            <option value="Early Listener (Short & Sweet)">Early Listener (Short & Sweet)</option>
-            <option value="Young Reader (Enriching Words)">Young Reader (Enriching Words)</option>
-            <option value="Imaginative Learner (Playful Plots)">Imaginative Learner (Playful Plots)</option>
+          <select id="readingLevel" onchange="toggleOtherInput('readingLevel', 'readingLevelOther')">
+            <option value="Early Listener (Ages 2-4: Short, simple words, ~150 words)">Early Listener (Ages 2-4: Short & Very Simple)</option>
+            <option value="Young Reader (Ages 5-7: Gentle plots, playful language, ~300 words)">Young Reader (Ages 5-7: Medium Length)</option>
+            <option value="Imaginative Learner (Ages 8+: Rich story, descriptive words, ~450 words)">Imaginative Learner (Ages 8+: Longer Tale)</option>
+            <option value="OTHER">Other...</option>
           </select>
+          <input type="text" id="readingLevelOther" class="custom-input" placeholder="e.g., Toddler (100 words max, super simple)...">
         </div>
 
         <!-- Moral Topic -->
@@ -326,7 +328,7 @@
       const select = document.getElementById(selectId);
       const input = document.getElementById(inputId);
       if (select.value === 'OTHER') {
-        return input.value.trim() || 'Special Companion';
+        return input.value.trim() || 'Custom Option';
       }
       return select.value;
     }
@@ -351,7 +353,7 @@
       const hero = document.getElementById('heroName').value || 'Explorer';
       const sidekick = getValue('sidekick', 'sidekickOther');
       const favoriteToy = getValue('favoriteToy', 'favoriteToyOther');
-      const readingLevel = document.getElementById('readingLevel').value;
+      const readingLevel = getValue('readingLevel', 'readingLevelOther');
       const moral = getValue('moralTopic', 'moralTopicOther');
 
       const generateBtn = document.getElementById('generateBtn');
@@ -361,14 +363,22 @@
       generateBtn.innerText = 'Writing Story...';
       storyBody.innerText = '✨ Calling AI star systems to write your bedtime story... Please wait! ✨';
 
-      const prompt = `Write a soothing, beautifully detailed bedtime story for children that is around 400-500 words long.
+      const prompt = `You are a gentle bedtime story writer for children. Write a soothing bedtime story based on the following parameters:
+
 Main Character: ${hero}
 Companion: ${sidekick}
 Special Toy / Item: ${favoriteToy}
-Reading Level: ${readingLevel}
+Complexity Level / Constraints: ${readingLevel}
 Lesson/Moral: ${moral}
 
-Make it multi-paragraph, comforting, and focused on the lesson of ${moral}. Weave the ${favoriteToy} naturally into their evening adventure. End with a sleepy, calming conclusion as ${hero} falls asleep safely in bed.`;
+CRITICAL RULES FOR COMPLEXITY & AGE ADJUSTMENT:
+- Adapt sentence structure, vocabulary, and length DIRECTLY to the specified complexity level (${readingLevel}).
+- For Early Listeners or young toddlers: Keep sentences very short, simple, rhythmic, and cozy. Do NOT use complex words (avoid words like "astonishing", "melancholy", "perplexing"). Limit length to around 150-200 simple words.
+- For Young Readers: Use warm, descriptive words that encourage early reading, keeping the length around 250-350 words.
+- For Imaginative Learners: Write a richer, more detailed narrative with gentle worldbuilding around 400-500 words.
+- Always keep the tone peaceful, sweet, and comforting.
+- Focus on the gentle lesson of ${moral} and weave ${favoriteToy} into the story.
+- End with a sleepy, soothing conclusion as ${hero} drifts off to sleep in bed.`;
 
       try {
         const response = await puter.ai.chat(prompt);
