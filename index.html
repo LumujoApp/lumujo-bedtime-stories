@@ -43,7 +43,7 @@
 
     .app-header {
       text-align: center;
-      margin-bottom: 25px;
+      margin-bottom: 20px;
     }
 
     .app-header h1 {
@@ -56,6 +56,18 @@
     .subtitle {
       font-size: 0.85rem;
       color: #a0aab2;
+    }
+
+    .credit-badge {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 6px 14px;
+      background: rgba(76, 201, 240, 0.15);
+      border: 1px solid #4cc9f0;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      color: #4cc9f0;
+      font-weight: bold;
     }
 
     .form-group {
@@ -162,7 +174,7 @@
       border: 1px solid #4cc9f0;
       border-radius: 20px;
       padding: 30px;
-      max-width: 420px;
+      max-width: 440px;
       width: 90%;
       text-align: center;
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
@@ -187,18 +199,37 @@
       margin-bottom: 20px;
     }
 
-    .modal-btn {
-      width: 100%;
-      padding: 12px;
-      background: linear-gradient(45deg, #f72585, #7209b7);
-      border: none;
-      border-radius: 10px;
-      color: #fff;
-      font-weight: bold;
-      font-size: 1rem;
+    .pack-option {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 12px;
+      text-align: left;
       cursor: pointer;
-      box-shadow: 0 4px 15px rgba(247, 37, 133, 0.4);
-      margin-bottom: 10px;
+      transition: border-color 0.2s;
+    }
+
+    .pack-option:hover {
+      border-color: #4cc9f0;
+    }
+
+    .pack-title {
+      font-weight: bold;
+      color: #fff;
+      font-size: 1rem;
+    }
+
+    .pack-price {
+      float: right;
+      color: #4cc9f0;
+      font-weight: bold;
+    }
+
+    .pack-desc {
+      font-size: 0.8rem;
+      color: #a0aab2;
+      margin-top: 4px;
     }
 
     .close-modal-btn {
@@ -208,6 +239,7 @@
       font-size: 0.85rem;
       cursor: pointer;
       text-decoration: underline;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -217,6 +249,7 @@
       <header class="app-header">
         <h1>LUMUJO BEDTIME STORIES</h1>
         <p class="subtitle">Personalized AI-powered tales for bedtime</p>
+        <div id="creditBadge" class="credit-badge">Free Story Remaining: 1</div>
       </header>
 
       <form id="storyForm">
@@ -302,16 +335,42 @@
   <!-- Paywall Modal Overlay -->
   <div id="paywallModal" class="modal-overlay">
     <div class="modal-card">
-      <h2>✨ Free Trial Limit Reached</h2>
-      <p>You have enjoyed your free bedtime story! Upgrade to LUMUJO Premium to generate unlimited stories with custom characters, morals, and magical adventures.</p>
-      <button class="modal-btn" onclick="alert('Redirecting to payment checkout...')">Unlock Unlimited Stories ($4.99/mo)</button>
+      <h2>✨ Unlock More Bedtime Stories</h2>
+      <p>You have used your free story! Choose an option below to continue generating custom bedtime tales:</p>
+
+      <div class="pack-option" onclick="selectPack(10, 'Single Pack')">
+        <span class="pack-title">Single Pack (10 Stories)</span>
+        <span class="pack-price">$5.99 CAD</span>
+        <div class="pack-desc">Get 10 custom bedtime stories with no monthly commitment</div>
+      </div>
+
+      <div class="pack-option" onclick="selectPack(999, 'Monthly Unlimited Pass')">
+        <span class="pack-title">Monthly Unlimited Pass</span>
+        <span class="pack-price">$7.99 CAD/mo</span>
+        <div class="pack-desc">Truly unlimited bedtime story generations every month</div>
+      </div>
+
       <button class="close-modal-btn" onclick="closeModal()">Close</button>
     </div>
   </div>
 
   <script>
-    // Track story generation count in browser
-    let storiesGeneratedCount = parseInt(localStorage.getItem('lumujo_stories_count') || '0');
+    // Manage credits in localStorage
+    let credits = parseInt(localStorage.getItem('lumujo_credits') || '1');
+    let isUnlimited = localStorage.getItem('lumujo_unlimited') === 'true';
+
+    function updateBadge() {
+      const badge = document.getElementById('creditBadge');
+      if (isUnlimited) {
+        badge.innerText = `Monthly Unlimited Active ✨`;
+      } else if (credits > 0) {
+        badge.innerText = `Stories Remaining: ${credits}`;
+      } else {
+        badge.innerText = `0 Stories Remaining (Upgrade Below)`;
+      }
+    }
+
+    updateBadge();
 
     function toggleOtherInput(selectId, inputId) {
       const select = document.getElementById(selectId);
@@ -341,11 +400,25 @@
       document.getElementById('paywallModal').classList.remove('active');
     }
 
+    function selectPack(packAmount, planName) {
+      if (packAmount === 999) {
+        alert(`Redirecting to checkout for ${planName} ($7.99 CAD / month)...`);
+        isUnlimited = true;
+        localStorage.setItem('lumujo_unlimited', 'true');
+      } else {
+        alert(`Redirecting to checkout for ${planName} ($5.99 CAD for 10 stories)...`);
+        credits += packAmount;
+        localStorage.setItem('lumujo_credits', credits);
+      }
+      updateBadge();
+      closeModal();
+    }
+
     document.getElementById('storyForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      // Paywall Check: Block after 1 free story
-      if (storiesGeneratedCount >= 1) {
+      // Paywall Check
+      if (!isUnlimited && credits <= 0) {
         showModal();
         return;
       }
@@ -378,15 +451,18 @@ CRITICAL RULES FOR COMPLEXITY & AGE ADJUSTMENT:
 - For Imaginative Learners: Write a richer, more detailed narrative with gentle worldbuilding around 400-500 words.
 - Always keep the tone peaceful, sweet, and comforting.
 - Focus on the gentle lesson of ${moral} and weave ${favoriteToy} into the story.
-- End with a sleepy, soothing conclusion as ${hero} drifts off to sleep in bed.`;
+- End with a sleepy, soothing conclusion as ${hero} falls asleep safely in bed.`;
 
       try {
         const response = await puter.ai.chat(prompt);
         storyBody.innerText = response.toString().trim();
         
-        // Increment and save counter after successful generation
-        storiesGeneratedCount++;
-        localStorage.setItem('lumujo_stories_count', storiesGeneratedCount);
+        // Deduct credit if not unlimited
+        if (!isUnlimited) {
+          credits--;
+          localStorage.setItem('lumujo_credits', credits);
+        }
+        updateBadge();
       } catch (err) {
         storyBody.innerText = `Once upon a time, ${hero} and ${sidekick} went on a peaceful evening walk bringing along their ${favoriteToy}. They spent a quiet night learning all about ${moral}. As the soft night wind blew, they tucked themselves into bed feeling safe, warm, and happy. The end.`;
       } finally {
