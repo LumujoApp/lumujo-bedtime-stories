@@ -35,12 +35,8 @@
       <h2 class="text-2xl font-bold mb-4 text-center">Create a Story</h2>
       <form id="story-form" class="space-y-4 max-w-md mx-auto">
         <div>
-          <label class="block text-sm font-medium mb-1 text-slate-300">Child's Name</label>
-          <input type="text" id="child-name" required placeholder="e.g. Leo" class="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-indigo-500">
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1 text-slate-300">Story Theme or Topic</label>
-          <input type="text" id="story-theme" required placeholder="e.g. Friendly dragon in space" class="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-indigo-500">
+          <label class="block text-sm font-medium mb-1 text-slate-300">Story Topic or Theme</label>
+          <input type="text" id="story-theme" required placeholder="e.g. A friendly dragon exploring space" class="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-indigo-500">
         </div>
         <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 font-semibold rounded-lg transition-colors">
           ✨ Generate Bedtime Story
@@ -149,7 +145,6 @@
     // Story Generator Form Handler
     document.getElementById('story-form').addEventListener('submit', (e) => {
       e.preventDefault();
-      const name = document.getElementById('child-name').value;
       const theme = document.getElementById('story-theme').value;
       const credits = getCredits();
 
@@ -165,7 +160,7 @@
 
       const output = document.getElementById('story-output');
       output.classList.remove('hidden');
-      output.textContent = `Once upon a time, there was a brave child named ${name} who went on a magical adventure exploring ${theme}.\n\nAs night fell, ${name} drifted peacefully to sleep, dreaming of grand adventures under the starry night sky. The End.`;
+      output.textContent = `Once upon a time, in a magical land far away, an incredible adventure began surrounding ${theme}.\n\nAs night fell, stars filled the sky and peaceful dreams washed over the quiet night. The End.`;
     });
   </script>
 </body>
