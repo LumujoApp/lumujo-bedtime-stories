@@ -31,14 +31,71 @@
   <main class="max-w-4xl mx-auto p-6 w-full flex-grow">
 
     <!-- Generator Section (Visible when user has credits or unlimited access) -->
-    <section id="generator-section" class="hidden mb-12 bg-slate-800/50 p-6 rounded-2xl border border-slate-700">
-      <h2 class="text-2xl font-bold mb-4 text-center">Create a Story</h2>
-      <form id="story-form" class="space-y-4 max-w-md mx-auto">
+    <section id="generator-section" class="hidden mb-12 bg-slate-800/50 p-6 sm:p-8 rounded-2xl border border-slate-700">
+      <div class="text-center mb-6">
+        <h2 class="text-2xl font-bold">Create Your Story</h2>
+        <p class="text-sm text-slate-400">Personalized AI-powered tales for bedtime</p>
+      </div>
+
+      <form id="story-form" class="space-y-4 max-w-lg mx-auto">
+        <!-- Main Character / Hero Name -->
         <div>
-          <label class="block text-sm font-medium mb-1 text-slate-300">Story Topic or Theme</label>
-          <input type="text" id="story-theme" required placeholder="e.g. A friendly dragon exploring space" class="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-indigo-500">
+          <label class="block text-sm font-medium mb-1 text-slate-300">Main Character / Hero Name</label>
+          <input type="text" id="hero-name" required placeholder="e.g. Leo, Maya, Sam" class="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-indigo-500">
         </div>
-        <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 font-semibold rounded-lg transition-colors">
+
+        <!-- Sidekick or Companion -->
+        <div>
+          <label class="block text-sm font-medium mb-1 text-slate-300">Sidekick or Companion</label>
+          <select id="sidekick" class="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-indigo-500">
+            <option value="Friendly Dragon">Friendly Dragon</option>
+            <option value="Teddy Bear">Teddy Bear</option>
+            <option value="Wise Owl">Wise Owl</option>
+            <option value="Playful Puppy">Playful Puppy</option>
+            <option value="Magical Robot">Magical Robot</option>
+            <option value="Curious Kitten">Curious Kitten</option>
+            <option value="Talking Tree">Talking Tree</option>
+          </select>
+        </div>
+
+        <!-- Special Toy or Magical Item -->
+        <div>
+          <label class="block text-sm font-medium mb-1 text-slate-300">Special Toy or Magical Item</label>
+          <select id="magical-item" class="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-indigo-500">
+            <option value="Magic Wand">Magic Wand</option>
+            <option value="Flying Blanket">Flying Blanket</option>
+            <option value="Glowing Star Torch">Glowing Star Torch</option>
+            <option value="Favorite Cuddly Bear">Favorite Cuddly Bear</option>
+            <option value="Wooden Toy Train">Wooden Toy Train</option>
+            <option value="Shiny Pocket Compass">Shiny Pocket Compass</option>
+          </select>
+        </div>
+
+        <!-- Story Complexity / Reading Level -->
+        <div>
+          <label class="block text-sm font-medium mb-1 text-slate-300">Story Complexity / Reading Level</label>
+          <select id="reading-level" class="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-indigo-500">
+            <option value="Early Listener (Short & Sweet)">Early Listener (Short & Sweet)</option>
+            <option value="Young Reader (Enriching Words)">Young Reader (Enriching Words)</option>
+            <option value="Imaginative Learner (Playful Plots)">Imaginative Learner (Playful Plots)</option>
+          </select>
+        </div>
+
+        <!-- Moral or Lesson Topic -->
+        <div>
+          <label class="block text-sm font-medium mb-1 text-slate-300">Moral or Lesson Topic</label>
+          <select id="moral-lesson" class="w-full p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white focus:outline-none focus:border-indigo-500">
+            <option value="Kindness">Kindness</option>
+            <option value="Sharing">Sharing</option>
+            <option value="Being Brave">Being Brave</option>
+            <option value="Patience">Patience</option>
+            <option value="Curiosity">Curiosity</option>
+            <option value="Honesty">Honesty</option>
+            <option value="Perseverance">Perseverance</option>
+          </select>
+        </div>
+
+        <button type="submit" class="w-full py-3 mt-2 bg-indigo-600 hover:bg-indigo-500 font-semibold rounded-lg transition-colors">
           ✨ Generate Bedtime Story
         </button>
       </form>
@@ -145,7 +202,13 @@
     // Story Generator Form Handler
     document.getElementById('story-form').addEventListener('submit', (e) => {
       e.preventDefault();
-      const theme = document.getElementById('story-theme').value;
+      
+      const hero = document.getElementById('hero-name').value;
+      const sidekick = document.getElementById('sidekick').value;
+      const item = document.getElementById('magical-item').value;
+      const level = document.getElementById('reading-level').value;
+      const moral = document.getElementById('moral-lesson').value;
+
       const credits = getCredits();
 
       if (credits !== 'unlimited') {
@@ -160,7 +223,7 @@
 
       const output = document.getElementById('story-output');
       output.classList.remove('hidden');
-      output.textContent = `Once upon a time, in a magical land far away, an incredible adventure began surrounding ${theme}.\n\nAs night fell, stars filled the sky and peaceful dreams washed over the quiet night. The End.`;
+      output.textContent = `Once upon a time, there lived a brave hero named ${hero}. \n\nAlong with a loyal companion, a ${sidekick}, and holding their special ${item}, they set off on a gentle evening adventure.\n\nAlong the journey, ${hero} discovered an important secret about the value of ${moral}.\n\nAs the stars twinkled overhead, ${hero} wrapped up in a warm blanket, feeling peaceful and proud. The End.`;
     });
   </script>
 </body>
