@@ -131,6 +131,18 @@
       transform: none;
     }
 
+    .error-banner {
+      display: none;
+      background: rgba(239, 71, 111, 0.2);
+      border: 1px solid #ef476f;
+      color: #ff85a1;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
     .story-result-box {
       margin-top: 25px;
       background: rgba(0, 0, 0, 0.3);
@@ -252,6 +264,10 @@
         <div id="creditBadge" class="credit-badge">Free Story Remaining: 1</div>
       </header>
 
+      <div id="safetyWarning" class="error-banner">
+        ⚠️ Please keep all story names and details gentle, friendly, and appropriate for children.
+      </div>
+
       <form id="storyForm">
         <!-- Main Character -->
         <div class="form-group">
@@ -359,6 +375,18 @@
     let credits = parseInt(localStorage.getItem('lumujo_credits') || '1');
     let isUnlimited = localStorage.getItem('lumujo_unlimited') === 'true';
 
+    // List of blocked concepts to guard against inappropriate content
+    const unsafeKeywords = [
+      'kill', 'die', 'dead', 'murder', 'blood', 'gory', 'knife', 'gun', 'weapon', 'fight', 'war', 
+      'hurt', 'abuse', 'hit', 'punch', 'scary', 'monster', 'ghost', 'demon', 'devil', 'hate', 
+      'evil', 'poison', 'curse', 'threat', 'kidnap', 'choke', 'strike', 'nightmare'
+    ];
+
+    function isInputSafe(text) {
+      const lower = text.toLowerCase();
+      return !unsafeKeywords.some(keyword => lower.includes(keyword));
+    }
+
     function updateBadge() {
       const badge = document.getElementById('creditBadge');
       if (isUnlimited) {
@@ -417,6 +445,9 @@
     document.getElementById('storyForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
+      const safetyBanner = document.getElementById('safetyWarning');
+      safetyBanner.style.display = 'none';
+
       // Paywall Check
       if (!isUnlimited && credits <= 0) {
         showModal();
@@ -429,6 +460,13 @@
       const readingLevel = getValue('readingLevel', 'readingLevelOther');
       const moral = getValue('moralTopic', 'moralTopicOther');
 
+      // CHILD PROTECTION CHECK
+      const allInputs = `${hero} ${sidekick} ${favoriteToy} ${readingLevel} ${moral}`;
+      if (!isInputSafe(allInputs)) {
+        safetyBanner.style.display = 'block';
+        return;
+      }
+
       const generateBtn = document.getElementById('generateBtn');
       const storyBody = document.getElementById('storyBody');
 
@@ -436,22 +474,26 @@
       generateBtn.innerText = 'Writing Story...';
       storyBody.innerText = '✨ Calling AI star systems to write your bedtime story... Please wait! ✨';
 
-      const prompt = `You are a gentle bedtime story writer for children. Write a soothing bedtime story based on the following parameters:
+      const prompt = `You are a gentle, wholesome, and child-safe bedtime story writer. 
 
+STRICT SAFETY & CONTENT GUARANTEES:
+- This story MUST be completely safe, comforting, positive, and age-appropriate for young children.
+- Absolutely NO violence, gore, weapons, abuse, fear, jump-scares, dark themes, or adult content under any circumstances.
+- If any input seems questionable, ignore the negative undertones and turn it into a peaceful, gentle, happy story element.
+
+STORY PARAMETERS:
 Main Character: ${hero}
 Companion: ${sidekick}
 Special Toy / Item: ${favoriteToy}
 Complexity Level / Constraints: ${readingLevel}
 Lesson/Moral: ${moral}
 
-CRITICAL RULES FOR COMPLEXITY & AGE ADJUSTMENT:
+AGE & COMPLEXITY ADJUSTMENTS:
 - Adapt sentence structure, vocabulary, and length DIRECTLY to the specified complexity level (${readingLevel}).
-- For Early Listeners or young toddlers: Keep sentences very short, simple, rhythmic, and cozy. Do NOT use complex words (avoid words like "astonishing", "melancholy", "perplexing"). Limit length to around 150-200 simple words.
-- For Young Readers: Use warm, descriptive words that encourage early reading, keeping the length around 250-350 words.
-- For Imaginative Learners: Write a richer, more detailed narrative with gentle worldbuilding around 400-500 words.
-- Always keep the tone peaceful, sweet, and comforting.
-- Focus on the gentle lesson of ${moral} and weave ${favoriteToy} into the story.
-- End with a sleepy, soothing conclusion as ${hero} falls asleep safely in bed.`;
+- Early Listeners: Very short, simple, rhythmic, cozy sentences (~150-200 simple words). No complex vocabulary.
+- Young Readers: Gentle plots and playful language (~250-350 words).
+- Imaginative Learners: Richer, detailed, comforting narrative (~400-500 words).
+- End with a sleepy, calming conclusion as ${hero} falls asleep safely in bed.`;
 
       try {
         const response = await puter.ai.chat(prompt);
