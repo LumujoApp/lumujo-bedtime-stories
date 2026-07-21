@@ -30,7 +30,7 @@
   <!-- Main Content Area -->
   <main class="max-w-4xl mx-auto p-6 w-full flex-grow">
 
-    <!-- Generator Section (Visible when user has credits/unlimited) -->
+    <!-- Generator Section (Visible when user has credits or unlimited access) -->
     <section id="generator-section" class="hidden mb-12 bg-slate-800/50 p-6 rounded-2xl border border-slate-700">
       <h2 class="text-2xl font-bold mb-4 text-center">Create a Story</h2>
       <form id="story-form" class="space-y-4 max-w-md mx-auto">
@@ -57,19 +57,19 @@
       <p class="text-slate-400 mb-8">Choose a plan to generate custom bedtime stories for your child.</p>
 
       <div class="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-        <!-- 10 Story Pack -->
+        <!-- 10 Story Pack ($5.99) -->
         <div class="bg-slate-800/40 p-6 rounded-2xl border border-slate-700 flex flex-col justify-between">
           <div>
             <h3 class="text-lg font-bold mb-2">10 Story Pack</h3>
             <p class="text-sm text-slate-400 mb-4">One-time purchase for 10 custom bedtime stories.</p>
             <div class="text-3xl font-black mb-6">$5.99 <span class="text-sm font-normal text-slate-400">CAD</span></div>
           </div>
-          <a href="https://buy.stripe.com/evqfZi5xj1dBenu87TbZe00" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 font-semibold rounded-xl transition-colors block">
+          <a href="https://buy.stripe.com/eVqfZi5xj1dBenu87TbZe00" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 font-semibold rounded-xl transition-colors block">
             Buy 10 Credits
           </a>
         </div>
 
-        <!-- Monthly Unlimited -->
+        <!-- Monthly Unlimited ($7.99) -->
         <div class="bg-slate-800/80 p-6 rounded-2xl border-2 border-indigo-500 relative flex flex-col justify-between">
           <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-500 text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full text-white">
             Most Popular
@@ -79,7 +79,7 @@
             <p class="text-sm text-slate-400 mb-4">Unlock unlimited bedtime story generation every month.</p>
             <div class="text-3xl font-black mb-6">$7.99 <span class="text-sm font-normal text-slate-400">CAD / mo</span></div>
           </div>
-          <a href="https://buy.stripe.com/9B6dRa5xj2hF1AIco9bZe03" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 font-semibold rounded-xl transition-colors block">
+          <a href="https://buy.stripe.com/6oUdRa1h3f4rdjqdsdbZe01" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 font-semibold rounded-xl transition-colors block">
             Subscribe Now
           </a>
         </div>
@@ -102,7 +102,7 @@
       localStorage.setItem('lumujo_credits', val);
     }
 
-    // Update UI Elements based on state
+    // Update UI Elements based on saved state
     function updateUI() {
       const badge = document.getElementById('credit-badge');
       const generatorSection = document.getElementById('generator-section');
@@ -125,7 +125,7 @@
       }
     }
 
-    // Handle Payment Success Parameters
+    // Handle Payment Success Parameters from Stripe Redirect
     window.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
       const payment = urlParams.get('payment');
@@ -139,14 +139,14 @@
           setCredits(current + 10);
           alert('🎉 Payment successful! 10 credits have been added to your account.');
         }
-        // Clean up URL so refresh doesn't trigger the alert again
+        // Clean up URL parameter so refreshing doesn't re-trigger the alert
         window.history.replaceState({}, document.title, window.location.pathname);
       }
 
       updateUI();
     });
 
-    // Story Generator Demo Handler
+    // Story Generator Form Handler
     document.getElementById('story-form').addEventListener('submit', (e) => {
       e.preventDefault();
       const name = document.getElementById('child-name').value;
