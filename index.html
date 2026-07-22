@@ -1,138 +1,513 @@
-<script>
-  // Safe localStorage getter
-  function getSafeStorage(key, defaultValue) {
-    try {
-      const item = localStorage.getItem(key);
-      return item !== null ? item : defaultValue;
-    } catch (e) {
-      // Handles Safari Private Mode / blocked cookies gracefully
-      return defaultValue;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LUMUJO Bedtime Stories</title>
+  <!-- Puter.js Library for Free AI Story Generation -->
+  <script src="https://js.puter.com/v2/"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-  }
 
-  // Safe localStorage setter
-  function setSafeStorage(key, value) {
-    try {
-      localStorage.setItem(key, value.toString());
-    } catch (e) {
-      // Prevents app crash if localStorage is read-only
-      console.warn('LocalStorage is disabled or in Private Mode');
+    body {
+      background: radial-gradient(circle at center, #0b132b, #1c2541, #0b0c10);
+      background-size: cover;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: #fff;
     }
-  }
 
-  // 1. Initialize 1 free credit for first-time visitors
-  if (getSafeStorage('lumujo_credits', null) === null) {
-    setSafeStorage('lumujo_credits', '1');
-  }
-
-  let credits = parseInt(getSafeStorage('lumujo_credits', '1'), 10);
-  let isUnlimited = getSafeStorage('lumujo_unlimited', 'false') === 'true';
-
-  const unsafeKeywords = [
-    'kill', 'die', 'dead', 'murder', 'blood', 'gory', 'knife', 'gun', 'weapon', 'fight', 'war', 
-    'hurt', 'abuse', 'hit', 'punch', 'scary', 'monster', 'ghost', 'demon', 'devil', 'hate', 
-    'evil', 'poison', 'curse', 'threat', 'kidnap', 'choke', 'strike', 'nightmare'
-  ];
-
-  function isInputSafe(text) {
-    const lower = text.toLowerCase();
-    return !unsafeKeywords.some(keyword => lower.includes(keyword));
-  }
-
-  function updateBadge() {
-    const badge = document.getElementById('creditBadge');
-    if (!badge) return;
-
-    if (isUnlimited) {
-      badge.innerText = `Monthly Unlimited Active ✨`;
-    } else if (credits > 0) {
-      badge.innerText = `Free Story Remaining: ${credits}`;
-    } else {
-      badge.innerText = `0 Stories Remaining (Upgrade Below)`;
+    .app-container {
+      width: 100%;
+      max-width: 550px;
+      position: relative;
     }
-  }
 
-  updateBadge();
+    .glass-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 20px;
+      padding: 35px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    }
 
-  function toggleOtherInput(selectId, inputId) {
-    const select = document.getElementById(selectId);
-    const input = document.getElementById(inputId);
-    if (select && input) {
-      if (select.value === 'OTHER') {
-        input.style.display = 'block';
-        input.focus();
+    .app-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .app-header h1 {
+      font-size: 1.8rem;
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+      color: #4cc9f0;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: #a0aab2;
+    }
+
+    .credit-badge {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 6px 14px;
+      background: rgba(76, 201, 240, 0.15);
+      border: 1px solid #4cc9f0;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      color: #4cc9f0;
+      font-weight: bold;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+      color: #4cc9f0;
+    }
+
+    input[type="text"], select {
+      width: 100%;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    .custom-input {
+      margin-top: 8px;
+      display: none;
+    }
+
+    select option {
+      background: #1c2541;
+      color: #fff;
+    }
+
+    .primary-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(45deg, #4895ef, #4361ee);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+      box-shadow: 0 4px 15px rgba(67, 97, 238, 0.4);
+      transition: transform 0.2s, opacity 0.2s;
+    }
+
+    .primary-btn:hover {
+      transform: translateY(-2px);
+      opacity: 0.9;
+    }
+
+    .primary-btn:disabled {
+      background: #555;
+      box-shadow: none;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .error-banner {
+      display: none;
+      background: rgba(239, 71, 111, 0.2);
+      border: 1px solid #ef476f;
+      color: #ff85a1;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .story-result-box {
+      margin-top: 25px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
+      padding: 20px;
+      border-left: 3px solid #4cc9f0;
+    }
+
+    .story-text {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: #e0e6ed;
+      white-space: pre-line;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background: #1c2541;
+      border: 1px solid #4cc9f0;
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 440px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+      transform: translateY(20px);
+      transition: transform 0.3s ease;
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: translateY(0);
+    }
+
+    .modal-card h2 {
+      color: #4cc9f0;
+      margin-bottom: 12px;
+      font-size: 1.5rem;
+    }
+
+    .modal-card p {
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: #d0d8e0;
+      margin-bottom: 20px;
+    }
+
+    .pack-option {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 12px;
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .pack-option:hover {
+      border-color: #4cc9f0;
+    }
+
+    .pack-title {
+      font-weight: bold;
+      color: #fff;
+      font-size: 1rem;
+    }
+
+    .pack-price {
+      float: right;
+      color: #4cc9f0;
+      font-weight: bold;
+    }
+
+    .pack-desc {
+      font-size: 0.8rem;
+      color: #a0aab2;
+      margin-top: 4px;
+    }
+
+    .close-modal-btn {
+      background: transparent;
+      border: none;
+      color: #a0aab2;
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-decoration: underline;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="glass-card">
+      <header class="app-header">
+        <h1>LUMUJO BEDTIME STORIES</h1>
+        <p class="subtitle">Personalized AI-powered tales for bedtime</p>
+        <div id="creditBadge" class="credit-badge">Free Story Remaining: 1</div>
+      </header>
+
+      <div id="safetyWarning" class="error-banner">
+        ⚠️ Please keep all story names and details gentle, friendly, and appropriate for children.
+      </div>
+
+      <form id="storyForm">
+        <!-- Main Character -->
+        <div class="form-group">
+          <label for="heroName">MAIN CHARACTER / HERO NAME</label>
+          <input type="text" id="heroName" placeholder="e.g., Leo, Maya, Barnaby..." required>
+        </div>
+
+        <!-- Sidekick -->
+        <div class="form-group">
+          <label for="sidekick">SIDEKICK OR COMPANION</label>
+          <select id="sidekick" onchange="toggleOtherInput('sidekick', 'sidekickOther')">
+            <option value="Friendly Dragon">Friendly Dragon</option>
+            <option value="Teddy Bear">Teddy Bear</option>
+            <option value="Wise Owl">Wise Owl</option>
+            <option value="Playful Puppy">Playful Puppy</option>
+            <option value="Magical Robot">Magical Robot</option>
+            <option value="Curious Kitten">Curious Kitten</option>
+            <option value="Talking Tree">Talking Tree</option>
+            <option value="OTHER">Other...</option>
+          </select>
+          <input type="text" id="sidekickOther" class="custom-input" placeholder="Type custom sidekick...">
+        </div>
+
+        <!-- Special Toy / Item -->
+        <div class="form-group">
+          <label for="favoriteToy">SPECIAL TOY OR MAGICAL ITEM</label>
+          <select id="favoriteToy" onchange="toggleOtherInput('favoriteToy', 'favoriteToyOther')">
+            <option value="Shiny Pocket Compass">Shiny Pocket Compass</option>
+            <option value="Magic Wand">Magic Wand</option>
+            <option value="Flying Blanket">Flying Blanket</option>
+            <option value="Glowing Star Torch">Glowing Star Torch</option>
+            <option value="Favorite Cuddly Bear">Favorite Cuddly Bear</option>
+            <option value="Wooden Toy Train">Wooden Toy Train</option>
+            <option value="OTHER">Other...</option>
+          </select>
+          <input type="text" id="favoriteToyOther" class="custom-input" placeholder="Type custom toy or item...">
+        </div>
+
+        <!-- Reading Level -->
+        <div class="form-group">
+          <label for="readingLevel">STORY COMPLEXITY / READING LEVEL</label>
+          <select id="readingLevel" onchange="toggleOtherInput('readingLevel', 'readingLevelOther')">
+            <option value="Early Listener (Ages 2-4: Toddler mode, super simple 1-syllable words, ~100 words)">
+              Early Listener (Ages 2-4: Toddler Mode - Ultra Simple)
+            </option>
+            <option value="Young Reader (Ages 5-7: Short sentences, gentle plot, ~200 words)">
+              Young Reader (Ages 5-7: Medium Story)
+            </option>
+            <option value="Imaginative Learner (Ages 8+: Richer story, ~350 words)">
+              Imaginative Learner (Ages 8+: Longer Tale)
+            </option>
+            <option value="OTHER">Other...</option>
+          </select>
+          <input type="text" id="readingLevelOther" class="custom-input" placeholder="Type custom level...">
+        </div>
+
+        <!-- Moral Topic -->
+        <div class="form-group">
+          <label for="moralTopic">MORAL OR LESSON TOPIC</label>
+          <select id="moralTopic" onchange="toggleOtherInput('moralTopic', 'moralTopicOther')">
+            <option value="Being Brave">Being Brave</option>
+            <option value="Kindness">Kindness</option>
+            <option value="Sharing">Sharing</option>
+            <option value="Patience">Patience</option>
+            <option value="Curiosity">Curiosity</option>
+            <option value="Honesty">Honesty</option>
+            <option value="Perseverance">Perseverance</option>
+            <option value="OTHER">Other...</option>
+          </select>
+          <input type="text" id="moralTopicOther" class="custom-input" placeholder="Type custom lesson or moral...">
+        </div>
+
+        <button type="submit" id="generateBtn" class="primary-btn">
+          ✨ GENERATE MAGIC STORY ✨
+        </button>
+      </form>
+
+      <!-- Output Section -->
+      <div id="storyResult" class="story-result-box">
+        <div id="storyBody" class="story-text">
+          Fill out the details above and click Generate Magic Story to begin!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paywall Modal Overlay -->
+  <div id="paywallModal" class="modal-overlay">
+    <div class="modal-card">
+      <h2>✨ Unlock More Bedtime Stories</h2>
+      <p>You have used your free story! Choose an option below to continue generating custom bedtime tales:</p>
+
+      <div class="pack-option" onclick="selectPack(10, 'Single Pack')">
+        <span class="pack-title">Single Pack (10 Stories)</span>
+        <span class="pack-price">$5.99 CAD</span>
+        <div class="pack-desc">Get 10 custom bedtime stories with no monthly commitment</div>
+      </div>
+
+      <div class="pack-option" onclick="selectPack(999, 'Monthly Unlimited Pass')">
+        <span class="pack-title">Monthly Unlimited Pass</span>
+        <span class="pack-price">$7.99 CAD/mo</span>
+        <div class="pack-desc">Truly unlimited bedtime story generations every month</div>
+      </div>
+
+      <button class="close-modal-btn" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+
+  <script>
+    // Safe localStorage getter
+    function getSafeStorage(key, defaultValue) {
+      try {
+        const item = localStorage.getItem(key);
+        return item !== null ? item : defaultValue;
+      } catch (e) {
+        return defaultValue;
+      }
+    }
+
+    // Safe localStorage setter
+    function setSafeStorage(key, value) {
+      try {
+        localStorage.setItem(key, value.toString());
+      } catch (e) {
+        console.warn('LocalStorage is disabled or in Private Mode');
+      }
+    }
+
+    // 1. Initialize 1 free credit for first-time visitors
+    if (getSafeStorage('lumujo_credits', null) === null) {
+      setSafeStorage('lumujo_credits', '1');
+    }
+
+    let credits = parseInt(getSafeStorage('lumujo_credits', '1'), 10);
+    let isUnlimited = getSafeStorage('lumujo_unlimited', 'false') === 'true';
+
+    const unsafeKeywords = [
+      'kill', 'die', 'dead', 'murder', 'blood', 'gory', 'knife', 'gun', 'weapon', 'fight', 'war', 
+      'hurt', 'abuse', 'hit', 'punch', 'scary', 'monster', 'ghost', 'demon', 'devil', 'hate', 
+      'evil', 'poison', 'curse', 'threat', 'kidnap', 'choke', 'strike', 'nightmare'
+    ];
+
+    function isInputSafe(text) {
+      const lower = text.toLowerCase();
+      return !unsafeKeywords.some(keyword => lower.includes(keyword));
+    }
+
+    function updateBadge() {
+      const badge = document.getElementById('creditBadge');
+      if (!badge) return;
+
+      if (isUnlimited) {
+        badge.innerText = `Monthly Unlimited Active ✨`;
+      } else if (credits > 0) {
+        badge.innerText = `Free Story Remaining: ${credits}`;
       } else {
-        input.style.display = 'none';
+        badge.innerText = `0 Stories Remaining (Upgrade Below)`;
       }
     }
-  }
 
-  function getValue(selectId, inputId) {
-    const select = document.getElementById(selectId);
-    const input = document.getElementById(inputId);
-    if (select) {
-      if (select.value === 'OTHER' && input) {
-        return input.value.trim() || 'Custom Option';
+    updateBadge();
+
+    function toggleOtherInput(selectId, inputId) {
+      const select = document.getElementById(selectId);
+      const input = document.getElementById(inputId);
+      if (select && input) {
+        if (select.value === 'OTHER') {
+          input.style.display = 'block';
+          input.focus();
+        } else {
+          input.style.display = 'none';
+        }
       }
-      return select.value;
-    }
-    return '';
-  }
-
-  function showModal() {
-    const modal = document.getElementById('paywallModal');
-    if (modal) modal.classList.add('active');
-  }
-
-  function closeModal() {
-    const modal = document.getElementById('paywallModal');
-    if (modal) modal.classList.remove('active');
-  }
-
-  function selectPack(packAmount, planName) {
-    if (packAmount === 999) {
-      window.location.href = "https://buy.stripe.com/9B6dRa5xj2hF1AIco9bZe03";
-    } else {
-      window.location.href = "https://buy.stripe.com/eVqfZi5xj1dBenu87TbZe00";
-    }
-  }
-
-  document.getElementById('storyForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const safetyBanner = document.getElementById('safetyWarning');
-    if (safetyBanner) safetyBanner.style.display = 'none';
-
-    // Paywall Check
-    if (!isUnlimited && credits <= 0) {
-      showModal();
-      return;
     }
 
-    const hero = document.getElementById('heroName')?.value || 'Explorer';
-    const sidekick = getValue('sidekick', 'sidekickOther');
-    const favoriteToy = getValue('favoriteToy', 'favoriteToyOther');
-    const readingLevel = getValue('readingLevel', 'readingLevelOther');
-    const moral = getValue('moralTopic', 'moralTopicOther');
-
-    const allInputs = `${hero} ${sidekick} ${favoriteToy} ${readingLevel} ${moral}`;
-    if (!isInputSafe(allInputs)) {
-      if (safetyBanner) safetyBanner.style.display = 'block';
-      return;
+    function getValue(selectId, inputId) {
+      const select = document.getElementById(selectId);
+      const input = document.getElementById(inputId);
+      if (select) {
+        if (select.value === 'OTHER' && input) {
+          return input.value.trim() || 'Custom Option';
+        }
+        return select.value;
+      }
+      return '';
     }
 
-    const generateBtn = document.getElementById('generateBtn');
-    const storyBody = document.getElementById('storyBody');
-
-    if (generateBtn) {
-      generateBtn.disabled = true;
-      generateBtn.innerText = 'Writing Story...';
-    }
-    if (storyBody) {
-      storyBody.innerText = '✨ Calling AI star systems to write your bedtime story... Please wait! ✨';
+    function showModal() {
+      const modal = document.getElementById('paywallModal');
+      if (modal) modal.classList.add('active');
     }
 
-    const prompt = `You are a gentle, wholesome, and child-safe bedtime story writer. 
+    function closeModal() {
+      const modal = document.getElementById('paywallModal');
+      if (modal) modal.classList.remove('active');
+    }
+
+    function selectPack(packAmount, planName) {
+      if (packAmount === 999) {
+        window.location.href = "https://buy.stripe.com/9B6dRa5xj2hF1AIco9bZe03";
+      } else {
+        window.location.href = "https://buy.stripe.com/eVqfZi5xj1dBenu87TbZe00";
+      }
+    }
+
+    document.getElementById('storyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const safetyBanner = document.getElementById('safetyWarning');
+      if (safetyBanner) safetyBanner.style.display = 'none';
+
+      // Paywall Check
+      if (!isUnlimited && credits <= 0) {
+        showModal();
+        return;
+      }
+
+      const hero = document.getElementById('heroName')?.value || 'Explorer';
+      const sidekick = getValue('sidekick', 'sidekickOther');
+      const favoriteToy = getValue('favoriteToy', 'favoriteToyOther');
+      const readingLevel = getValue('readingLevel', 'readingLevelOther');
+      const moral = getValue('moralTopic', 'moralTopicOther');
+
+      const allInputs = `${hero} ${sidekick} ${favoriteToy} ${readingLevel} ${moral}`;
+      if (!isInputSafe(allInputs)) {
+        if (safetyBanner) safetyBanner.style.display = 'block';
+        return;
+      }
+
+      const generateBtn = document.getElementById('generateBtn');
+      const storyBody = document.getElementById('storyBody');
+
+      if (generateBtn) {
+        generateBtn.disabled = true;
+        generateBtn.innerText = 'Writing Story...';
+      }
+      if (storyBody) {
+        storyBody.innerText = '✨ Calling AI star systems to write your bedtime story... Please wait! ✨';
+      }
+
+      const prompt = `You are a gentle, wholesome, and child-safe bedtime story writer. 
 
 STRICT SAFETY & CONTENT GUARANTEES:
 - This story MUST be completely safe, comforting, positive, and age-appropriate for young children.
@@ -153,25 +528,26 @@ AGE & COMPLEXITY ADJUSTMENTS:
 - Imaginative Learners: Richer, detailed, comforting narrative (~350-450 words).
 - End with a sleepy, calming conclusion as ${hero} falls asleep safely in bed.`;
 
-    try {
-      const response = await puter.ai.chat(prompt);
-      if (storyBody) storyBody.innerText = response.toString().trim();
-      
-      // Deduct credit safely after a successful story generation
-      if (!isUnlimited) {
-        credits = Math.max(0, credits - 1);
-        setSafeStorage('lumujo_credits', credits);
+      try {
+        const response = await puter.ai.chat(prompt);
+        if (storyBody) storyBody.innerText = response.toString().trim();
+        
+        if (!isUnlimited) {
+          credits = Math.max(0, credits - 1);
+          setSafeStorage('lumujo_credits', credits);
+        }
+        updateBadge();
+      } catch (err) {
+        if (storyBody) {
+          storyBody.innerText = `Once upon a time, ${hero} and ${sidekick} went on a peaceful evening walk bringing along their ${favoriteToy}. They spent a quiet night learning all about ${moral}. As the soft night wind blew, they tucked themselves into bed feeling safe, warm, and happy. The end.`;
+        }
+      } finally {
+        if (generateBtn) {
+          generateBtn.disabled = false;
+          generateBtn.innerText = '✨ GENERATE MAGIC STORY ✨';
+        }
       }
-      updateBadge();
-    } catch (err) {
-      if (storyBody) {
-        storyBody.innerText = `Once upon a time, ${hero} and ${sidekick} went on a peaceful evening walk bringing along their ${favoriteToy}. They spent a quiet night learning all about ${moral}. As the soft night wind blew, they tucked themselves into bed feeling safe, warm, and happy. The end.`;
-      }
-    } finally {
-      if (generateBtn) {
-        generateBtn.disabled = false;
-        generateBtn.innerText = '✨ GENERATE MAGIC STORY ✨';
-      }
-    }
-  });
-</script>
+    });
+  </script>
+</body>
+</html>
