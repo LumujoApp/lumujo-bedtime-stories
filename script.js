@@ -1,69 +1,170 @@
-exports.handler = async (event) => {
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method Not Allowed' };
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('storyForm');
+  const loading = document.getElementById('loading');
+  const result = document.getElementById('storyResult');
+  const storyBody = document.getElementById('storyBody');
+
+  // --- 1. CREDIT & PAYMENT STATE ---
+  let credits = parseInt(localStorage.getItem('lumujo_credits') || '1', 10);
+  let isUnlimited = localStorage.getItem('lumujo_unlimited') === 'true';
+
+  function updateBadgeUI() {
+    const badge = document.getElementById('creditBadge');
+    if (!badge) return;
+
+    if (isUnlimited) {
+      badge.innerText = 'Monthly Unlimited Active ✨';
+    } else if (credits > 0) {
+      badge.innerText = `Stories Remaining: ${credits}`;
+    } else {
+      badge.innerText = '0 Stories Remaining (Upgrade Below)';
+    }
   }
 
-  try {
-    const { character, companion, level, moral } = JSON.parse(event.body || '{}');
+  // --- 2. STRIPE PAYMENT RETURN HANDLER ---
+  function checkStripeReturn() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentStatus = urlParams.get('payment');
+    const planType = urlParams.get('type');
 
-    const prompt = `You are a gentle, imaginative, and deeply human bedtime story writer for young children.
+    if (paymentStatus === 'success') {
+      if (planType === 'pack10') {
+        credits += 10;
+        localStorage.setItem('lumujo_credits', credits);
+        alert('🎉 Thank you! 10 new bedtime stories have been added to your balance.');
+      } else if (planType === 'unlimited') {
+        isUnlimited = true;
+        localStorage.setItem('lumujo_unlimited', 'true');
+        alert('🎉 Welcome to Lumujo Monthly Unlimited Pass!');
+      }
 
-CREATIVE & TONAL DIRECTIVES:
-- Write in a natural, warm, and engaging human voice. Avoid robotic, formulaic, or repetitive AI patterns.
-- Every story must feel unique, creative, and tailored specifically to the child's chosen character and theme.
-- Focus on emotional warmth, comforting imagery, and a soothing bedtime rhythm.
+      // Refresh UI badge
+      updateBadgeUI();
+
+      // Clean URL parameters so page refreshes don't re-trigger credits
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }
+
+  // Run immediately on page load
+  updateBadgeUI();
+  checkStripeReturn();
+
+  // --- 3. SAFETY CONTENT CHECK ---
+  const blockedKeywords = [
+    "fuck", "shit", "bitch", "asshole", "dick", "pussy", "sexy", "naked", "porn",
+    "kill", "murder", "blood", "stab", "shoot", "death", "die", "punch", "fight", "war", "execute"
+  ];
+
+  function containsInappropriateContent(text) {
+    if (!text) return false;
+    const cleanedText = text.toLowerCase().trim();
+    return blockedKeywords.some(badWord => cleanedText.includes(badWord));
+  }
+
+  // --- 4. MODAL HELPERS ---
+  function showPaywallModal() {
+    const modal = document.getElementById('paywallModal');
+    if (modal) {
+      modal.classList.add('active');
+    } else {
+      alert("You've used all your free stories! Please upgrade to continue.");
+    }
+  }
+
+  // --- 5. STORY GENERATION HANDLER ---
+  async function generateStory(event) {
+    event.preventDefault();
+
+    // Paywall Enforcement Check
+    if (!isUnlimited && credits <= 0) {
+      showPaywallModal();
+      return;
+    }
+
+    const character = document.getElementById("characterName")?.value || "";
+    const companion = document.querySelector("select")?.value || "a friend";
+    const level = document.querySelectorAll("select")[1]?.value || "bedtime reading";
+    const moral = document.querySelectorAll("select")[2]?.value || "kindness";
+
+    if (containsInappropriateContent(character)) {
+      alert("Please keep the character name friendly!");
+      return;
+    }
+
+    // Dynamic prompt with user selections
+    const prompt = `You are a gentle, comforting bedtime story writer for young children.
 
 STRICT SAFETY & AGE RULES:
-- 100% wholesome, safe, soothing, and child-friendly.
-- Must end with a peaceful bedtime conclusion where the main character falls asleep safely in bed.
+- The story must be 100% wholesome, safe, soothing, and child-friendly.
+- End with a peaceful bedtime conclusion where the main character falls asleep safely in bed.
 
-COMPLEXITY & VOCABULARY CONSTRAINTS:
-Target Level: ${level}
+COMPLEXITY LEVEL & VOCABULARY CONSTRAINTS (STRICT ENFORCEMENT REQUIRED):
+Selected Reading Level: ${level}
 
 IF LEVEL IS "Early Listener" OR "Ages 2-4":
-- WORD COUNT: Strictly 100 to 140 words max.
-- VOCABULARY: Only basic 1-to-2 syllable words suitable for a toddler (e.g., sun, star, bear, cozy, warm, soft, happy, sleepy, night, hug).
+- WORD COUNT: Maximum 100 to 140 words total.
+- VOCABULARY: Use ONLY basic 1-to-2 syllable words that a 2-year-old understands (e.g., sun, star, bear, cozy, warm, soft, happy, sleepy, night, hug).
 - SENTENCE LENGTH: Max 5 to 7 words per sentence.
 - BANNED WORDS: DO NOT use words like "adventure", "journey", "enchanted", "magnificent", "curious", "expedition", "discover", "marvelous", or "courageous".
-- STYLE: Soothing, gentle rhythm, simple repetition, cozy imagery.
+- STYLE: Use simple repetition, gentle rhythm, and soothing bedtime sounds.
+  (Example style: "Leo found a little teddy bear. The bear was soft. The bear was warm. 'Goodnight star,' said the bear. Leo closed his eyes. It was time for sleep.")
 
 IF LEVEL IS "Young Reader" OR "Ages 5-7":
-- WORD COUNT: ~200 to 250 words max. Short sentences, playful language, gentle plot.
+- WORD COUNT: ~200 to 250 words max.
+- VOCABULARY: Short sentences, playful language, easy-to-follow plots.
 
 IF LEVEL IS "Imaginative Learner" OR "Ages 8+":
 - WORD COUNT: ~350 to 450 words. Richer descriptive sentences and deeper storylines.
 
-STORY INPUTS:
-- Hero: ${character}
+STORY DETAILS:
+- Main Character: ${character}
 - Companion: ${companion}
 - Moral/Lesson: ${moral}`;
 
-    // Call your AI provider API here using process.env.AI_API_KEY
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.AI_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.7
-      })
-    });
+    if (loading) loading.classList.remove("hidden");
+    if (result) result.classList.add("hidden");
 
-    const data = await response.json();
-    const story = data.choices?.[0]?.message?.content || "Once upon a time...";
+    try {
+      // Connects directly to your Netlify serverless function
+      const response = await fetch("https://lumujo-bedtime-stories.netlify.app/.netlify/functions/generate-story", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt, character, companion, level, moral })
+      });
 
-    return {
-      statusCode: 200,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ story })
-    };
-  } catch (error) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: error.message })
-    };
+      const data = await response.json();
+      
+      if (data && data.story) {
+        if (storyBody) storyBody.innerText = data.story;
+
+        // Deduct 1 credit upon successful generation if not on unlimited plan
+        if (!isUnlimited) {
+          credits = Math.max(0, credits - 1);
+          localStorage.setItem('lumujo_credits', credits.toString());
+          updateBadgeUI();
+        }
+
+      } else if (data && data.error) {
+        if (storyBody) {
+          storyBody.innerText = `Backend Config Error: ${data.error}. (Did you add your AI_API_KEY to Netlify environment variables yet?)`;
+        }
+      } else {
+        if (storyBody) {
+          storyBody.innerText = "The AI endpoint is setting up. Make sure your Netlify environment key is active!";
+        }
+      }
+      
+      if (result) result.classList.remove("hidden");
+    } catch (error) {
+      if (storyBody) {
+        storyBody.innerText = "Could not reach the serverless backend. Check your Netlify deployment log or CORS settings.";
+      }
+      if (result) result.classList.remove("hidden");
+    } finally {
+      if (loading) loading.classList.add("hidden");
+    }
   }
-};
+
+  if (form) form.addEventListener('submit', generateStory);
+});
