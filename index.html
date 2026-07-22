@@ -403,6 +403,31 @@
     let credits = parseInt(getSafeStorage('lumujo_credits', '1'), 10);
     let isUnlimited = getSafeStorage('lumujo_unlimited', 'false') === 'true';
 
+    // --- STRIPE RETURN HANDLER ---
+    function checkStripeReturn() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const paymentStatus = urlParams.get('payment');
+      const planType = urlParams.get('type');
+
+      if (paymentStatus === 'success') {
+        if (planType === 'pack10') {
+          credits += 10;
+          setSafeStorage('lumujo_credits', credits);
+          alert('🎉 Thank you! 10 new bedtime stories have been added to your balance.');
+        } else if (planType === 'unlimited') {
+          isUnlimited = true;
+          setSafeStorage('lumujo_unlimited', 'true');
+          alert('🎉 Welcome to Lumujo Monthly Unlimited Pass!');
+        }
+
+        // Clean URL parameters so page refreshes don't re-grant credits
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+
+    // Run Stripe return check on load
+    checkStripeReturn();
+
     const unsafeKeywords = [
       'kill', 'die', 'dead', 'murder', 'blood', 'gory', 'knife', 'gun', 'weapon', 'fight', 'war', 
       'hurt', 'abuse', 'hit', 'punch', 'scary', 'monster', 'ghost', 'demon', 'devil', 'hate', 
