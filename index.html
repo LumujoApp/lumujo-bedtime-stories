@@ -158,7 +158,6 @@
       white-space: pre-line;
     }
 
-    /* Modal Pop-Up Styles */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -306,16 +305,22 @@
           <input type="text" id="favoriteToyOther" class="custom-input" placeholder="Type custom toy or item...">
         </div>
 
-        <!-- Reading Level / Complexity -->
+        <!-- Updated Reading Level -->
         <div class="form-group">
           <label for="readingLevel">STORY COMPLEXITY / READING LEVEL</label>
           <select id="readingLevel" onchange="toggleOtherInput('readingLevel', 'readingLevelOther')">
-            <option value="Early Listener (Ages 2-4: Short, simple words, ~150 words)">Early Listener (Ages 2-4: Short & Very Simple)</option>
-            <option value="Young Reader (Ages 5-7: Gentle plots, playful language, ~300 words)">Young Reader (Ages 5-7: Medium Length)</option>
-            <option value="Imaginative Learner (Ages 8+: Rich story, descriptive words, ~450 words)">Imaginative Learner (Ages 8+: Longer Tale)</option>
+            <option value="Early Listener (Ages 2-4: Toddler mode, super simple 1-syllable words, ~100 words)">
+              Early Listener (Ages 2-4: Toddler Mode - Ultra Simple)
+            </option>
+            <option value="Young Reader (Ages 5-7: Short sentences, gentle plot, ~200 words)">
+              Young Reader (Ages 5-7: Medium Story)
+            </option>
+            <option value="Imaginative Learner (Ages 8+: Richer story, ~350 words)">
+              Imaginative Learner (Ages 8+: Longer Tale)
+            </option>
             <option value="OTHER">Other...</option>
           </select>
-          <input type="text" id="readingLevelOther" class="custom-input" placeholder="e.g., Toddler (100 words max, super simple)...">
+          <input type="text" id="readingLevelOther" class="custom-input" placeholder="Type custom level...">
         </div>
 
         <!-- Moral Topic -->
@@ -371,11 +376,9 @@
   </div>
 
   <script>
-    // Manage credits in localStorage
     let credits = parseInt(localStorage.getItem('lumujo_credits') || '1');
     let isUnlimited = localStorage.getItem('lumujo_unlimited') === 'true';
 
-    // List of blocked concepts to guard against inappropriate content
     const unsafeKeywords = [
       'kill', 'die', 'dead', 'murder', 'blood', 'gory', 'knife', 'gun', 'weapon', 'fight', 'war', 
       'hurt', 'abuse', 'hit', 'punch', 'scary', 'monster', 'ghost', 'demon', 'devil', 'hate', 
@@ -430,10 +433,8 @@
 
     function selectPack(packAmount, planName) {
       if (packAmount === 999) {
-        // Redirect to Stripe $7.99 CAD / Month link
         window.location.href = "https://buy.stripe.com/9B6dRa5xj2hF1AIco9bZe03";
       } else {
-        // Redirect to Stripe $5.99 CAD link
         window.location.href = "https://buy.stripe.com/eVqfZi5xj1dBenu87TbZe00";
       }
     }
@@ -444,7 +445,6 @@
       const safetyBanner = document.getElementById('safetyWarning');
       safetyBanner.style.display = 'none';
 
-      // Paywall Check
       if (!isUnlimited && credits <= 0) {
         showModal();
         return;
@@ -456,7 +456,6 @@
       const readingLevel = getValue('readingLevel', 'readingLevelOther');
       const moral = getValue('moralTopic', 'moralTopicOther');
 
-      // CHILD PROTECTION CHECK
       const allInputs = `${hero} ${sidekick} ${favoriteToy} ${readingLevel} ${moral}`;
       if (!isInputSafe(allInputs)) {
         safetyBanner.style.display = 'block';
@@ -495,7 +494,6 @@ AGE & COMPLEXITY ADJUSTMENTS:
         const response = await puter.ai.chat(prompt);
         storyBody.innerText = response.toString().trim();
         
-        // Deduct credit if not unlimited
         if (!isUnlimited) {
           credits--;
           localStorage.setItem('lumujo_credits', credits);
